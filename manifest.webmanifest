@@ -1,0 +1,15 @@
+{
+  "name": "화물운송종사자격 모의시험",
+  "short_name": "화물 모의시험",
+  "description": "가입 없이 무료로 이용하는 화물운송종사자격시험 모의시험·해설·오답 복습",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#1f5fbf",
+  "icons": [
+    { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

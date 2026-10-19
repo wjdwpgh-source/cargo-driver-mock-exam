@@ -1,0 +1,10 @@
+{
+  "name": "cargo-driver-mock-exam",
+  "version": "0.1.0",
+  "private": true,
+  "description": "화물운송종사자격 모의시험 (정적 웹, GitHub Pages)",
+  "scripts": {
+    "test": "node --test tests/unit.test.js",
+    "start": "python -m http.server 8000"
+  }
+}

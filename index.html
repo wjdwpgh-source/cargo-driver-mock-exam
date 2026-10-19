@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="가입 없이 무료로 이용하는 화물운송종사자격시험 모의시험·해설·오답 복습 프로그램">
+  <meta name="theme-color" content="#1f5fbf">
+  <title>화물운송종사자격 모의시험</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="images/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <link rel="stylesheet" href="src/styles.css">
+  <script>
+    // 글자 크기 설정을 화면이 그려지기 전에 적용 (깜빡임 방지)
+    try { var f = localStorage.getItem('cdme_font'); if (f === 'l' || f === 'xl') document.documentElement.setAttribute('data-font', f); } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#view">본문으로 건너뛰기</a>
+  <header class="topbar">
+    <a class="brand" href="#/home">화물운송 모의시험</a>
+    <span class="topbar-right">
+      <span id="offline-badge" class="offline-badge" role="status" hidden>오프라인</span>
+      <button type="button" id="font-btn" class="font-btn" aria-label="글자 크기: 보통. 누르면 크게">가<span aria-hidden="true">+</span></button>
+      <a id="user-chip" class="user-chip" href="#/profiles" hidden></a>
+    </span>
+  </header>
+  <main id="view" class="container" tabindex="-1">
+    <noscript><p>이 프로그램은 JavaScript를 사용합니다. 브라우저 설정에서 JavaScript를 켜 주세요.</p></noscript>
+  </main>
+  <footer class="footer container">
+    <p><a href="#/help">도움말 · 이용 안내</a></p>
+    <p>비공식 학습용 프로그램 · 개인정보를 수집하지 않습니다 · 기록은 이 기기의 브라우저에만 저장됩니다</p>
+  </footer>
+
+  <script src="src/util.js"></script>
+  <script src="src/store.js"></script>
+  <script src="src/questions.js"></script>
+  <script src="src/exam.js"></script>
+  <script src="src/notes.js"></script>
+  <script src="src/records.js"></script>
+  <script src="src/review.js"></script>
+  <script src="src/backup.js"></script>
+  <script src="src/ui/modal.js"></script>
+  <script src="src/ui/exam-view.js"></script>
+  <script src="src/ui/records-view.js"></script>
+  <script src="src/ui/review-view.js"></script>
+  <script src="src/ui/data-view.js"></script>
+  <script src="src/ui/help-view.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

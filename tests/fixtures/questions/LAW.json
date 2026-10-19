@@ -1,0 +1,7 @@
+{ "subject": "LAW", "questions": [
+  { "id": "LAW-0001", "subject": "LAW", "question": "[테스트] 지문 A", "choices": ["가","나","다","라"], "answer": 2, "explanation": "테스트 해설", "source": "테스트", "law_ref": "", "difficulty": 1, "image": null, "status": "verified", "version": 1 },
+  { "id": "LAW-0002", "subject": "LAW", "question": "[테스트] 지문 B", "choices": ["가","나","다","라"], "answer": 4, "explanation": "테스트 해설", "source": "테스트", "law_ref": "", "difficulty": 2, "image": null, "status": "draft" },
+  { "id": "LAW-0002", "subject": "LAW", "question": "[테스트] id 중복", "choices": ["가","나","다","라"], "answer": 1, "explanation": "x", "source": "테스트", "status": "verified" },
+  { "id": "LAW-0003", "subject": "LAW", "question": "[테스트] 보기 3개", "choices": ["가","나","다"], "answer": 1, "explanation": "x", "source": "테스트", "status": "verified" },
+  { "id": "CARGO-0001", "subject": "LAW", "question": "[테스트] 과목 불일치", "choices": ["가","나","다","라"], "answer": 5, "explanation": "x", "source": "테스트", "status": "ok" }
+]}

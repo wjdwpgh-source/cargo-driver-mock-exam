@@ -1,0 +1,507 @@
+{
+ "subject": "SERVICE",
+ "sample": true,
+ "updated_at": "2026-10-19",
+ "questions": [
+  {
+   "id": "SERVICE-9001",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 1] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9002",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 2] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9003",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 3] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9004",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 4] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9005",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 5] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9006",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 6] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9007",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 7] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9008",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 8] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9009",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 9] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9010",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 10] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9011",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 11] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9012",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 12] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9013",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 13] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9014",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 14] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9015",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 15] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9016",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 16] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9017",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 17] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9018",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 18] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9019",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 19] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9020",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 20] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9021",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 21] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9022",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 22] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9023",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 23] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9024",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 24] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "SERVICE-9025",
+   "subject": "SERVICE",
+   "question": "[샘플 운송서비스 25] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  }
+ ]
+}

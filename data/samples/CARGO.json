@@ -1,0 +1,507 @@
+{
+ "subject": "CARGO",
+ "sample": true,
+ "updated_at": "2026-10-19",
+ "questions": [
+  {
+   "id": "CARGO-9001",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 1] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9002",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 2] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9003",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 3] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9004",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 4] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9005",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 5] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9006",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 6] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9007",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 7] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9008",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 8] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9009",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 9] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9010",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 10] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9011",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 11] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9012",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 12] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9013",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 13] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9014",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 14] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9015",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 15] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9016",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 16] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9017",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 17] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9018",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 18] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9019",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 19] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9020",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 20] 개발 확인용 문제입니다. 이 문제의 정답은 4번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 4,
+   "explanation": "샘플 문제의 해설입니다. 정답은 4번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9021",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 21] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9022",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 22] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9023",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 23] 개발 확인용 문제입니다. 이 문제의 정답은 1번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 1,
+   "explanation": "샘플 문제의 해설입니다. 정답은 1번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9024",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 24] 개발 확인용 문제입니다. 이 문제의 정답은 3번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 3,
+   "explanation": "샘플 문제의 해설입니다. 정답은 3번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  },
+  {
+   "id": "CARGO-9025",
+   "subject": "CARGO",
+   "question": "[샘플 화물취급요령 25] 개발 확인용 문제입니다. 이 문제의 정답은 2번입니다.",
+   "choices": [
+    "샘플 보기 1",
+    "샘플 보기 2",
+    "샘플 보기 3",
+    "샘플 보기 4"
+   ],
+   "answer": 2,
+   "explanation": "샘플 문제의 해설입니다. 정답은 2번입니다.",
+   "source": "개발용 샘플",
+   "law_ref": "",
+   "difficulty": 1,
+   "image": null,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-10-19"
+  }
+ ]
+}

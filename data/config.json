@@ -1,0 +1,15 @@
+{
+  "exam": {
+    "minutes": 80,
+    "pass_score": 60,
+    "subjects": [
+      { "code": "LAW", "name": "교통 및 화물자동차 운수사업 관련 법규", "count": 25 },
+      { "code": "CARGO", "name": "화물취급요령", "count": 15 },
+      { "code": "SAFE", "name": "안전운행", "count": 25 },
+      { "code": "SERVICE", "name": "운송서비스", "count": 15 }
+    ]
+  },
+  "review": { "mastery_streak": 2, "recent_days": 7, "frequent_count": 2 },
+  "data_date": "2026-10-20",
+  "issue_url": "https://github.com/wjdwpgh-source/cargo-driver-mock-exam/issues/new"
+}
