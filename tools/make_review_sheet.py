@@ -274,5 +274,8 @@ def build(out):
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not collect():
+        print("검수할 문제가 없습니다 (모든 문제가 검수 완료 또는 폐기). 전체 문항 검수표가 필요하면 --all 을 붙이세요.")
+        sys.exit(0)
     out = args[0] if args else os.path.join(C.ROOT, "검수", "검수표_%s.xlsx" % date.today().isoformat())
     build(out)

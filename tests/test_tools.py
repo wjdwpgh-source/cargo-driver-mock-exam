@@ -31,6 +31,7 @@ for d in ("tools", "data"):
 os.makedirs(os.path.join(tmp, "images"), exist_ok=True)
 sys.path.insert(0, os.path.join(tmp, "tools"))
 from openpyxl import load_workbook  # noqa: E402
+C_STATUSES = ("draft", "reviewed", "verified", "deprecated")
 
 xlsx = os.path.join(tmp, "data", "raw", "문제_LAW.xlsx")
 js = os.path.join(tmp, "data", "questions", "LAW.json")
@@ -46,7 +47,7 @@ check(code == 0, "엑셀 검사 통과")
 code, out = run(tmp, "tools/convert.py")
 check(code == 0 and "LAW" in out, "변환 성공")
 before = load()
-check(len(before) >= 40 and all(q["status"] == "draft" for q in before.values()), "법규 문항 저장 (draft)")
+check(len(before) >= 40 and all(q["status"] in C_STATUSES for q in before.values()), "법규 문항 저장 (상태 값 정상)")
 orig = {q["id"]: q["version"] for q in json.load(open(os.path.join(ROOT, "data", "questions", "LAW.json"), encoding="utf-8"))["questions"]}
 check(all(q["version"] == orig[k] for k, q in before.items()), "변경 없으면 version 유지")
 
@@ -121,6 +122,7 @@ ws.cell(row=4, column=head.index("정답") + 1, value=5)                 # 정�
 ws.cell(row=5, column=head.index("보기2") + 1, value=ws.cell(row=5, column=head.index("보기1") + 1).value)  # 보기 중복
 ws.cell(row=6, column=head.index("기준일") + 1).value = None          # 법규 기준일 누락 (cell(value=None)은 값을 지우지 않음)
 ws.cell(row=7, column=head.index("상태") + 1, value="verified")        # 검수자 없이 verified
+ws.cell(row=7, column=head.index("검수자·검수일") + 1).value = None
 ws.cell(row=8, column=1, value=ws.cell(row=9, column=1).value)          # id 중복
 wb.save(xlsx)
 code, out = run(tmp, "tools/convert.py")
@@ -162,6 +164,50 @@ check(code == 1 and "힌트가 200자를 넘음" in out, "긴 힌트 오류")
 wt = load_workbook(os.path.join(ROOT, "data", "raw", "문제_양식.xlsx"))
 check("힌트" in [c.value for c in wt["문제"][1]] and wt["문제"].cell(row=1, column=[c.value for c in wt["문제"][1]].index("힌트") + 1).comment is not None,
       "양식에 힌트 열·안내")
+shutil.rmtree(tmp, ignore_errors=True)
+
+print("[9] 검수표 만들기 → 판정 입력 → 엑셀 원본 반영 → 변환")
+import datetime  # noqa: E402
+tmp = tempfile.mkdtemp()
+for d in ("tools", "data"):
+    shutil.copytree(os.path.join(ROOT, d), os.path.join(tmp, d))
+js = os.path.join(tmp, "data", "questions", "LAW.json")
+xb = load_workbook(os.path.join(tmp, "data", "raw", "문제_LAW.xlsx"))   # 검수 전 상태로 되돌려 시험
+xs = xb["문제"]
+hh = [c.value for c in xs[1]]
+for r in range(2, xs.max_row + 1):
+    if xs.cell(row=r, column=1).value in ("LAW-0001", "LAW-0002", "LAW-0003", "LAW-0004", "LAW-0005"):
+        xs.cell(row=r, column=hh.index("상태") + 1).value = "draft"
+        xs.cell(row=r, column=hh.index("검수자·검수일") + 1).value = None
+xb.save(os.path.join(tmp, "data", "raw", "문제_LAW.xlsx"))
+code, out = run(tmp, "tools/make_review_sheet.py", "--all")
+sheet = [f for f in os.listdir(os.path.join(tmp, "검수"))][0]
+sp = os.path.join(tmp, "검수", sheet)
+check(code == 0 and "1차 80 = 80" in out, "검수표 생성 (1차 80문항 표시)")
+wb = load_workbook(sp)
+ws = wb["검수표"]
+h = {c.value: i + 1 for i, c in enumerate(ws[1])}
+check(ws.max_row - 1 >= 400 and sum(1 for r in range(2, ws.max_row + 1) if ws.cell(row=r, column=h["1차 80"]).value == "○") == 80, "전체 문항 + 1차 80 표시")
+law_rows = [r for r in range(2, ws.max_row + 1) if ws.cell(row=r, column=h["과목"]).value == "법규"]
+check(any(ws.cell(row=r, column=h["법령 바로가기"]).hyperlink for r in law_rows), "법규 문제에 법령 바로가기 링크")
+ids = {ws.cell(row=r, column=h["문제 ID"]).value: r for r in range(2, ws.max_row + 1)}
+for qid, v, who in (("LAW-0001", "법령대조완료", "검수자A"), ("LAW-0002", "1차확인", ""), ("LAW-0003", "수정필요", ""), ("LAW-0004", "폐기", ""), ("LAW-0005", "법령대조완료", "")):
+    ws.cell(row=ids[qid], column=h["검수 판정"]).value = v
+    ws.cell(row=ids[qid], column=h["검수자"]).value = who or None
+    ws.cell(row=ids[qid], column=h["검수일"]).value = datetime.date(2026, 10, 21) if who else None
+ws.cell(row=ids["LAW-0003"], column=h["수정 의견"]).value = "해설 보완"
+wb.save(sp)
+code, out = run(tmp, "tools/apply_review.py")
+check(code == 0 and "법령대조완료 1" in out and "LAW-0005: 법령대조완료는 검수자·검수일이 필요" in out, "반영 결과 요약·검수자 없는 대조완료는 거부")
+run(tmp, "tools/convert.py")
+q = {x["id"]: x for x in json.load(open(js, encoding="utf-8"))["questions"]}
+check(q["LAW-0001"]["status"] == "verified" and "2026-10-21" in q["LAW-0001"]["law_ref"], "법령대조완료 → verified, 기준일 갱신")
+check(q["LAW-0002"]["status"] == "reviewed" and q["LAW-0003"]["status"] == "draft" and q["LAW-0004"]["status"] == "deprecated", "1차확인 → reviewed · 수정필요 → 그대로 · 폐기 → deprecated")
+check(q["LAW-0005"]["status"] == "draft", "거부된 문항은 상태 그대로")
+xl = load_workbook(os.path.join(tmp, "data", "raw", "문제_LAW.xlsx"))["문제"]
+hh = [c.value for c in xl[1]]
+note = [xl.cell(row=r, column=hh.index("비고") + 1).value for r in range(2, xl.max_row + 1) if xl.cell(row=r, column=1).value == "LAW-0003"][0]
+check("[검수" in note and "해설 보완" in note, "수정필요 의견이 비고에 기록")
 shutil.rmtree(tmp, ignore_errors=True)
 print("\n결과:", "모두 통과" if not errors else "실패 %d건" % len(errors))
 sys.exit(1 if errors else 0)

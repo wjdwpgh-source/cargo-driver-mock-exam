@@ -502,3 +502,6 @@ body.in-exam .container { padding-bottom: 6.5rem; }
 .weak-row .btn { grid-column: 2 / 3; grid-row: 2 / 3; justify-self: end; }
 .seg-item b { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: 2px; }
 .seg-item input:checked + span b { color: inherit; }
+#st-diff .seg-item span { flex-direction: column; line-height: 1.2; padding: 4px 2px; text-align: center; }
+#st-diff .seg-item b { margin-left: 0; }
+.seg-item span { min-width: 0; overflow-wrap: anywhere; }
