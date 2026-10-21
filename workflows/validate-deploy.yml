@@ -1,0 +1,53 @@
+# 문제 데이터 검사 → 단위 테스트 → GitHub Pages 배포 (PRD 11.2)
+# main 브랜치에 파일을 올릴 때마다 자동 실행. 검사가 실패하면 배포하지 않는다.
+name: 검사 후 배포
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 문제 데이터 검사
+        run: python tools/validate.py --json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: 단위 테스트 (출제·채점·오답노트·백업)
+        run: node --test tests/unit.test.js
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 공개할 파일만 모으기 (엑셀 원본·도구·테스트·문서 제외)
+        run: |
+          mkdir -p _site/data
+          cp -r index.html manifest.webmanifest sw.js src images _site/
+          cp -r data/config.json data/questions data/samples _site/data/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
