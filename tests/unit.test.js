@@ -431,7 +431,7 @@ test('백업 만들기·읽기: 진행 중 상태 제외, 왕복 보존 (FR-901,
   const r = B.parse(JSON.stringify(b));
   assert.equal(r.ok, true);
   assert.equal(r.backup.profiles[0].data.exams.length, 2);
-  assert.deepEqual(B.summarizeData(r.backup.profiles[0].data), { exams: 2, notes: 1, mastered: 1, reviews: 1 });
+  assert.deepEqual(B.summarizeData(r.backup.profiles[0].data), { exams: 2, notes: 1, mastered: 1, reviews: 1, bookmarks: 0, studies: 0 });
   assert.ok(B.fileName('화물 왕', '2026-10-19T03:04:00Z').startsWith('화물모의시험_백업_화물_왕_20261019_'));
 });
 
@@ -547,4 +547,105 @@ test('복습 힌트: 복습 세션에도 기록, 결과에 개수 (졸업 판정
   const res = RV.answer(rv, notes, bank, 0, q.answer);
   assert.equal(res.correct, true);
   assert.equal(RV.finish(rv).hintCount, 1);
+});
+
+
+/* ---------- v1.1.0: 북마크·집중 학습·취약 과목 (PRD 12.1) ---------- */
+const ST = require('../src/study.js');
+
+test('북마크: 켜기·끄기, 모드(실제/샘플) 분리, 폐기 문제 제외', () => {
+  const bank = loadSampleBank();
+  const bm = {};
+  const q1 = bank.bySubject.LAW[0], q2 = bank.bySubject.SAFE[0];
+  assert.equal(ST.toggleBookmark(bm, q1, false, '2026-10-21T01:00:00Z'), true);
+  assert.equal(ST.toggleBookmark(bm, q2, false, '2026-10-21T02:00:00Z'), true);
+  assert.equal(ST.isBookmarked(bm, q1.id, false), true);
+  assert.equal(ST.isBookmarked(bm, q1.id, true), false, '샘플 모드에서는 따로');
+  assert.deepEqual(ST.listBookmarks(bm, bank, false).map(r => r.id), [q2.id, q1.id], '최근 담은 순');
+  assert.equal(ST.listBookmarks(bm, bank, false, 'LAW').length, 1);
+  assert.equal(ST.toggleBookmark(bm, q1, false), false, '다시 누르면 해제');
+  assert.equal(ST.bookmarkCount(bm, bank, false), 1);
+  bank.byId[q2.id].status = 'deprecated';
+  assert.equal(ST.bookmarkCount(bm, bank, false), 0, '폐기된 문제는 목록에서 빠짐');
+  bank.byId[q2.id].status = 'verified';
+});
+
+test('집중 학습 범위: 과목 여러 개·난이도·북마크, 출제 가능(verified)만', () => {
+  const bank = loadSampleBank();
+  const all = ST.pool(bank, {}, {}, false);
+  assert.equal(all.length, Object.values(bank.byId).filter(q => q.status === 'verified').length);
+  const law = ST.pool(bank, { subjects: ['LAW'] }, {}, false);
+  assert.ok(law.length > 0 && law.every(id => id.startsWith('LAW-')));
+  const two = ST.pool(bank, { subjects: ['LAW', 'CARGO'] }, {}, false);
+  assert.ok(two.some(id => id.startsWith('CARGO-')) && two.every(id => /^(LAW|CARGO)-/.test(id)));
+  const d1 = ST.pool(bank, { difficulty: 1 }, {}, false);
+  assert.ok(d1.every(id => bank.byId[id].difficulty === 1));
+  assert.equal(ST.pool(bank, { subjects: ['NOPE'] }, {}, false).length, all.length, '모르는 과목 코드는 무시(전체)');
+  const bm = {}; ST.toggleBookmark(bm, bank.byId[law[0]], false);
+  assert.deepEqual(ST.pool(bank, { source: 'bookmark' }, bm, false), [law[0]]);
+  const c = ST.poolCounts(bank, { subjects: ['LAW'] }, bm, false);
+  assert.equal(c.total, law.length); assert.equal(c.bookmark, 1);
+  assert.equal(c.subject.CARGO, ST.pool(bank, { subjects: ['CARGO'] }, {}, false).length, '과목 칩 숫자는 다른 조건만 반영');
+  assert.equal(c.difficulty[0], law.length);
+});
+
+test('집중 학습 풀이: 문항 수 제한, 틀리면 오답노트에 담김, 결과 과목별 집계', () => {
+  const bank = loadSampleBank();
+  assert.throws(() => ST.buildStudy(bank, { filter: { source: 'bookmark' }, bookmarks: {} }), /없습니다/);
+  const st = ST.buildStudy(bank, { filter: { subjects: ['LAW', 'SAFE'] }, count: 4, rng: seeded(7) });
+  assert.equal(st.items.length, 4);
+  assert.ok(st.items.every(it => it.perm.join() === '1,2,3,4'), '기본은 보기 순서 그대로');
+  const notes = {};
+  const q0 = bank.byId[st.items[0].qid], q1 = bank.byId[st.items[1].qid];
+  assert.equal(ST.answer(st, notes, bank, 0, q0.answer, 'T1').correct, true);
+  const wrong = q1.answer === 1 ? 2 : 1;
+  const r1 = ST.answer(st, notes, bank, 1, wrong, 'T2');
+  assert.equal(r1.correct, false); assert.equal(r1.noted, true);
+  assert.equal(notes[q1.id].added_by, 'study'); assert.equal(notes[q1.id].state, 'active');
+  assert.equal(notes[q0.id], undefined, '맞힌 문제는 담지 않음');
+  assert.equal(ST.answer(st, notes, bank, 1, q1.answer), null, '답은 바꿀 수 없음');
+  E.useHint(st, 2); ST.answer(st, notes, bank, 2, bank.byId[st.items[2].qid].answer);
+  const rec = ST.finish(st, 'T9');
+  assert.equal(rec.total, 4); assert.equal(rec.answered, 3); assert.equal(rec.correct, 2); assert.equal(rec.hintCount, 1);
+  assert.deepEqual(rec.wrongIds, [q1.id]);
+  const sum = Object.values(rec.bySubject).reduce((a, b) => a + b.total, 0);
+  assert.equal(sum, 3);
+  const sh = ST.buildStudy(bank, { count: 'all', shuffleChoices: true, rng: seeded(3) });
+  assert.ok(sh.items.some(it => it.perm.join() !== '1,2,3,4'), '보기 섞기 선택 시 섞임');
+});
+
+test('취약 과목 분석: 최근 5회, 합격선(60%) 미만 표시, 부족 문항 수', () => {
+  const config = { exam: { pass_score: 60, subjects: [{ code: 'LAW', count: 25, name: '법규' }, { code: 'CARGO', count: 15, name: '화물' }] } };
+  assert.equal(ST.weakness([], false, config).count, 0);
+  const mk = (law, cargo, sample) => ({ sample, bySubject: { LAW: { correct: law, total: 25 }, CARGO: { correct: cargo, total: 15 } } });
+  const exams = [mk(0, 0), mk(25, 15), mk(10, 12), mk(12, 12), mk(14, 9), mk(11, 9), mk(13, 12), mk(5, 5, true)];
+  const w = ST.weakness(exams, false, config, 5);
+  assert.equal(w.count, 5, '최근 5회만 (샘플 제외)');
+  const law = w.subjects[0], cargo = w.subjects[1];
+  assert.equal(law.correct, 60); assert.equal(law.rate, 48); assert.equal(law.weak, true);
+  assert.equal(law.need, 3, '25문항 × (60-48)% = 3문항');
+  assert.equal(cargo.rate, 72); assert.equal(cargo.weak, false); assert.equal(cargo.need, 0);
+  assert.deepEqual(w.weak.map(s => s.code), ['LAW']);
+  assert.equal(w.weakest.code, 'LAW');
+});
+
+test('예전 기록에 북마크·학습 항목 자동 추가, 백업·합치기·초기화에 포함', () => {
+  const ad = S.memoryAdapter();
+  ad.set('cdme', JSON.stringify({ schemaVersion: 1, activeProfileId: 'p', profiles: [{ id: 'p', name: '옛날' }],
+    data: { p: { exams: [], wrongNotes: {}, reviewSessions: [], inProgress: null, reviewInProgress: null } } }));
+  const st = S.createStore(ad);
+  const d = st.getProfileData('p');
+  assert.deepEqual(d.bookmarks, {}); assert.deepEqual(d.studySessions, []); assert.equal(d.studyInProgress, null);
+  const data = Object.assign(mkData(), { bookmarks: { 'LAW-0001': { subject: 'LAW', added_at: 'A' } }, studySessions: [{ id: 's1', at: '2026-10-05T00:00:00Z' }], studyInProgress: { id: 'sip' } });
+  const b = B.parse(JSON.stringify(B.buildBackup([{ name: 'a', data }]))).backup.profiles[0].data;
+  assert.equal(b.studyInProgress, undefined, '진행 중 학습은 백업 안 함');
+  assert.equal(Object.keys(b.bookmarks).length, 1); assert.equal(b.studySessions.length, 1);
+  const m = B.merge({ exams: [], wrongNotes: {}, bookmarks: { 'SAFE-0001': { subject: 'SAFE' } }, studySessions: [{ id: 's0', at: '2026-10-01T00:00:00Z' }] }, b);
+  assert.deepEqual(Object.keys(m.bookmarks).sort(), ['LAW-0001', 'SAFE-0001']);
+  assert.deepEqual(m.studySessions.map(x => x.id), ['s0', 's1']);
+  assert.equal(B.parse(JSON.stringify({ app: 'cdme', kind: 'backup', schemaVersion: 1, profiles: [{ name: 'a', data: { bookmarks: [] } }] })).ok, false);
+  const r1 = B.resetData(data, 'notes');
+  assert.equal(Object.keys(r1.bookmarks).length, 1, '오답노트만 지우면 북마크는 남음');
+  const r2 = B.resetData(data, 'all');
+  assert.deepEqual(r2.bookmarks, {}); assert.deepEqual(r2.studySessions, []); assert.equal(r2.studyInProgress, null);
 });

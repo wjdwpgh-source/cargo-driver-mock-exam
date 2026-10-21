@@ -1,7 +1,8 @@
 /* 기록 백업·불러오기·초기화 (FR-801~803, FR-901~903) – 화면과 분리
  * 백업 파일 형식:
  * { "app": "cdme", "kind": "backup", "schemaVersion": 1, "exportedAt": ISO,
- *   "profiles": [ { "name": "닉네임", "createdAt": ISO, "data": { exams, wrongNotes, reviewSessions } } ] }
+ *   "profiles": [ { "name": "닉네임", "createdAt": ISO, "data": { exams, wrongNotes, reviewSessions, bookmarks, studySessions } } ] }
+ *   (bookmarks·studySessions는 v1.1.0 추가 – 없는 예전 백업도 그대로 불러옴)
  */
 (function (root) {
   'use strict';
@@ -20,7 +21,9 @@
     return {
       exams: Array.isArray(d.exams) ? clone(d.exams) : [],
       wrongNotes: d.wrongNotes && typeof d.wrongNotes === 'object' && !Array.isArray(d.wrongNotes) ? clone(d.wrongNotes) : {},
-      reviewSessions: Array.isArray(d.reviewSessions) ? clone(d.reviewSessions) : []
+      reviewSessions: Array.isArray(d.reviewSessions) ? clone(d.reviewSessions) : [],
+      bookmarks: d.bookmarks && typeof d.bookmarks === 'object' && !Array.isArray(d.bookmarks) ? clone(d.bookmarks) : {},
+      studySessions: Array.isArray(d.studySessions) ? clone(d.studySessions) : []
     };
   }
 
@@ -48,7 +51,9 @@
       exams: (d.exams || []).length,
       notes: Object.keys(notes).filter(function (k) { return notes[k].state === 'active'; }).length,
       mastered: Object.keys(notes).filter(function (k) { return notes[k].state === 'mastered'; }).length,
-      reviews: (d.reviewSessions || []).length
+      reviews: (d.reviewSessions || []).length,
+      bookmarks: Object.keys(d.bookmarks || {}).length,
+      studies: (d.studySessions || []).length
     };
   }
 
@@ -69,6 +74,7 @@
       if (!name) return { ok: false, error: (i + 1) + '번째 닉네임 이름이 없습니다.' };
       var d = p.data || {};
       if ((d.exams && !Array.isArray(d.exams)) || (d.reviewSessions && !Array.isArray(d.reviewSessions)) ||
+          (d.studySessions && !Array.isArray(d.studySessions)) || (d.bookmarks && (typeof d.bookmarks !== 'object' || Array.isArray(d.bookmarks))) ||
           (d.wrongNotes && (typeof d.wrongNotes !== 'object' || Array.isArray(d.wrongNotes)))) {
         return { ok: false, error: '"' + name + '"의 기록 형식이 올바르지 않습니다.' };
       }
@@ -90,6 +96,7 @@
     var out = cleanData(target);
     out.inProgress = target.inProgress || null;
     out.reviewInProgress = target.reviewInProgress || null;
+    out.studyInProgress = target.studyInProgress || null;
     function unionById(a, b, timeKey) {
       var seen = {};
       a.forEach(function (x) { seen[x.id] = true; });
@@ -99,6 +106,8 @@
     }
     out.exams = unionById(out.exams, src.exams || [], 'finishedAt');
     out.reviewSessions = unionById(out.reviewSessions, src.reviewSessions || [], 'at');
+    out.studySessions = unionById(out.studySessions, src.studySessions || [], 'at');
+    Object.keys(src.bookmarks || {}).forEach(function (id) { if (!out.bookmarks[id]) out.bookmarks[id] = clone(src.bookmarks[id]); });
     Object.keys(src.wrongNotes || {}).forEach(function (id) {
       var a = out.wrongNotes[id], b = src.wrongNotes[id];
       if (!a) { out.wrongNotes[id] = clone(b); return; }
@@ -138,7 +147,7 @@
         return { name: st.name, action: st.action, ok: !!r.ok, error: r.error, profileId: r.profile && r.profile.id, newName: name };
       }
       if (st.action === 'overwrite') {
-        var d = cleanData(st.data); d.inProgress = null; d.reviewInProgress = null;
+        var d = cleanData(st.data); d.inProgress = null; d.reviewInProgress = null; d.studyInProgress = null;
         return { name: st.name, action: 'overwrite', ok: store.replaceProfileData(st.existingId, d), profileId: st.existingId };
       }
       if (st.action === 'merge') {
@@ -150,15 +159,16 @@
   }
 
   /* ---------- 초기화 (FR-801~803) ---------- */
-  // scope: 'exams'(실전 기록만) | 'notes'(오답노트만) | 'all'(실전 + 오답노트 + 복습 기록)
+  // scope: 'exams'(실전 기록만) | 'notes'(오답노트만) | 'all'(실전 + 오답노트 + 복습·학습 기록 + 북마크)
   function resetData(d, scope) {
     var out = {
       exams: d.exams || [], wrongNotes: d.wrongNotes || {}, reviewSessions: d.reviewSessions || [],
-      inProgress: d.inProgress || null, reviewInProgress: d.reviewInProgress || null
+      inProgress: d.inProgress || null, reviewInProgress: d.reviewInProgress || null,
+      bookmarks: d.bookmarks || {}, studySessions: d.studySessions || [], studyInProgress: d.studyInProgress || null
     };
     if (scope === 'exams' || scope === 'all') { out.exams = []; out.inProgress = null; }
     if (scope === 'notes' || scope === 'all') { out.wrongNotes = {}; out.reviewInProgress = null; }
-    if (scope === 'all') { out.reviewSessions = []; }
+    if (scope === 'all') { out.reviewSessions = []; out.bookmarks = {}; out.studySessions = []; out.studyInProgress = null; }
     return out;
   }
 

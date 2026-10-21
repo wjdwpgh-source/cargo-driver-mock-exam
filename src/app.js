@@ -66,6 +66,10 @@
     review: function (a) { CDME.views.review(ctx, a); },
     'review-play': function (a) { CDME.views.reviewPlay(ctx, a); },
     'review-result': function (a) { CDME.views.reviewResult(ctx, a); },
+    study: function (a) { CDME.views.study(ctx, a); },
+    'study-play': function (a) { CDME.views.studyPlay(ctx, a); },
+    'study-result': function (a) { CDME.views.studyResult(ctx, a); },
+    bookmarks: function (a) { CDME.views.bookmarks(ctx, a); },
     data: function (a) { CDME.views.data(ctx, a); },
     help: function (a) { CDME.views.help(ctx, a); }
   };
@@ -107,7 +111,7 @@
     if (active && (route === '' || route === 'start')) route = 'home';
     if (!route) route = 'start';
     if (hashParts().route !== route) history.replaceState(null, '', '#/' + route);
-    document.body.classList.toggle('in-exam', route === 'exam' || route === 'review-play');
+    document.body.classList.toggle('in-exam', route === 'exam' || route === 'review-play' || route === 'study-play');
     // 다른 화면으로 옮기면 이전 화면의 알림은 지움 (같은 화면 다시 그리기는 유지)
     var changed = lastRoute !== route;
     if (changed) document.querySelectorAll('.toast').forEach(function (t) { t.remove(); });
@@ -324,6 +328,7 @@
       (last ? '<a class="btn btn-ghost" href="#/result?id=' + encodeURIComponent(last.id) + '">최근 시험 결과 보기</a>' : '') +
       '<button type="button" class="btn btn-outline" id="go-review">복습할 오답 <b>' + wrongActive + '</b>문제</button>' +
       '</section>' +
+      studyCardHtml(d, exams) +
       '<section class="card"><h2>문제 준비 현황' + (devKind === 'sample' ? ' <span class="tag tag-wait">샘플</span>' : devKind === 'draft' ? ' <span class="tag tag-wait">미리보기</span>' : '') + '</h2>' + bankStatusHtml() +
       (!sampleMode && bank && !ready && devAllowed() ? '<p class="small">검수가 끝나기 전에 시험을 풀어 보려면 ' +
         (draftReady() ? '<button type="button" class="link-btn" data-draft-on>검수 전 실제 문제로 미리보기</button> 또는 ' : '') +
@@ -331,6 +336,8 @@
       '</section>' +
       '<section class="card"><h2>메뉴</h2><ul class="menu">' +
       '<li><a href="#/notes">오답노트 · 복습 재시험</a></li>' +
+      '<li><a href="#/study">집중 학습 (과목별 · 난이도별 · 북마크)</a></li>' +
+      '<li><a href="#/bookmarks">북마크한 문제</a></li>' +
       '<li><a href="#/records">내 기록 (응시 이력 · 점수 추이 · 과목별 평균)</a></li>' +
       '<li><a href="#/data">기록 관리 (백업 · 불러오기 · 초기화)</a></li>' +
       '<li><a href="#/help">도움말 · 글자 크기 · 이용 안내</a></li>' +
@@ -386,6 +393,32 @@
         '창을 닫으면 그 시점의 남은 시간이 저장되어 나중에 이어 풀 수 있습니다.',
       okText: '시작'
     }).then(function (ok) { if (ok) begin(); });
+  }
+
+  /* 대시보드: 집중 학습·취약 과목 카드 (PRD 12.1) */
+  function studyCardHtml(d, exams) {
+    if (!bank) return '';
+    var S = CDME.study;
+    var w = S.weakness(exams, sampleMode, bank.config, 5);
+    var bmCount = S.bookmarkCount(d.bookmarks, bank, sampleMode);
+    var sip = d.studyInProgress;
+    var weakHtml;
+    if (!w.count) {
+      weakHtml = '<p class="muted small">실전 모의시험을 보면 최근 5회 기록으로 취약 과목을 알려 드립니다.</p>';
+    } else if (w.weak.length) {
+      weakHtml = '<p class="small">최근 ' + w.count + '회 기준 <b>합격선(' + w.line + '%) 아래</b> 과목: ' +
+        w.weak.map(function (s) { return '<b>' + esc(CDME.ui.subjectShort(s.code)) + '</b> ' + s.rate + '%'; }).join(', ') + '</p>' +
+        '<a class="btn btn-outline" href="#/study?subject=' + encodeURIComponent(w.weak[0].code) + '">' + esc(CDME.ui.subjectShort(w.weak[0].code)) + ' 집중 학습</a>';
+    } else {
+      weakHtml = '<p class="small">최근 ' + w.count + '회 기준 모든 과목이 합격선(' + w.line + '%) 이상입니다. 가장 낮은 과목: <b>' +
+        esc(CDME.ui.subjectShort(w.weakest.code)) + '</b> ' + w.weakest.rate + '%</p>';
+    }
+    return '<section class="card" aria-labelledby="study-h"><h2 id="study-h">집중 학습</h2>' +
+      (sip ? '<p class="small">진행 중인 학습이 있습니다 (' + CDME.study.tally(sip).answered + ' / ' + sip.items.length + '문항). <a href="#/study-play">이어 풀기</a></p>' : '') +
+      weakHtml +
+      '<div class="row wrap"><a class="btn btn-primary" href="#/study">과목·난이도 골라 풀기</a>' +
+      '<a class="btn btn-ghost" href="#/bookmarks">★ 북마크 <b>' + bmCount + '</b></a>' +
+      (w.count ? '<a class="btn btn-ghost" href="#/records?focus=weak">취약 과목 분석</a>' : '') + '</div></section>';
   }
 
   function stat(label, value) {
@@ -515,6 +548,26 @@
     setSampleMode: setSampleMode,
     setCleanup: function (fn) { cleanupFn = fn; }
   };
+
+  // 북마크 켜고 끄기 (시험·복습·학습·결과·오답노트 화면 공통, PRD 12.1)
+  view.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-bm]') : null;
+    if (!b) return;
+    var active = store.getActiveProfile();
+    if (!active || !bank) return;
+    var q = bank.byId[b.getAttribute('data-bm')];
+    if (!q) return;
+    var on = false;
+    store.updateProfileData(active.id, function (dd) {
+      if (!dd.bookmarks) dd.bookmarks = {};
+      on = CDME.study.toggleBookmark(dd.bookmarks, q, sampleMode);
+    });
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.innerHTML = '<span aria-hidden="true">' + (on ? '★' : '☆') + '</span> <span class="bm-label">' + (on ? '북마크됨' : '북마크') + '</span>';
+    if (CDME.ui && CDME.ui.toast) CDME.ui.toast(on ? '★ 북마크에 담았습니다.' : '북마크를 해제했습니다.');
+    if (b.hasAttribute('data-bm-rerender')) render();
+  });
 
   // 샘플 모드 켜기/끄기 버튼(공통 안내 영역)
   view.addEventListener('click', function (e) {

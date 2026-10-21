@@ -51,7 +51,8 @@
   }
 
   function emptyProfileData() {
-    return { exams: [], wrongNotes: {}, reviewSessions: [], inProgress: null, reviewInProgress: null };
+    return { exams: [], wrongNotes: {}, reviewSessions: [], inProgress: null, reviewInProgress: null,
+      bookmarks: {}, studySessions: [], studyInProgress: null };
   }
 
   // 이후 버전에서 구조가 바뀌면 여기에 단계별 변환을 추가한다.
@@ -76,6 +77,11 @@
     if (!state.data || typeof state.data !== 'object') state.data = {};
     state.profiles.forEach(function (p) {
       if (!state.data[p.id]) state.data[p.id] = emptyProfileData();
+      // v1.1.0에서 추가된 항목 (북마크·집중 학습) – 예전 기록에는 없으므로 빈 값으로 채움
+      var d = state.data[p.id];
+      if (!d.bookmarks || typeof d.bookmarks !== 'object' || Array.isArray(d.bookmarks)) d.bookmarks = {};
+      if (!Array.isArray(d.studySessions)) d.studySessions = [];
+      if (d.studyInProgress === undefined) d.studyInProgress = null;
     });
     if (state.activeProfileId && !state.data[state.activeProfileId]) state.activeProfileId = null;
     return state;

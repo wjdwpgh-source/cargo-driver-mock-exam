@@ -13,7 +13,7 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = dict(os.environ, PYTHONIOENCODING="utf-8")
-E2E = ["e2e_s1", "e2e_s2", "e2e_s3", "e2e_s4", "e2e_s5", "e2e_s6", "e2e_s7", "e2e_preview", "e2e_hint", "e2e_tc"]
+E2E = ["e2e_s1", "e2e_s2", "e2e_s3", "e2e_s4", "e2e_s5", "e2e_s6", "e2e_s7", "e2e_preview", "e2e_hint", "e2e_tc", "e2e_study"]
 
 
 def port_open(port):

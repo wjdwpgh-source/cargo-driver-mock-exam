@@ -3,12 +3,12 @@
  * - 평소에는 인터넷에서 최신 파일을 받고(받은 파일은 저장), 인터넷이 안 되면 저장된 파일 사용
  * - 파일 구성이 바뀌면 VERSION을 올린다
  */
-var VERSION = 'cdme-v1.21';
+var VERSION = 'cdme-v1.23';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'src/styles.css', 'src/util.js', 'src/store.js', 'src/questions.js', 'src/exam.js', 'src/notes.js',
-  'src/records.js', 'src/review.js', 'src/backup.js',
-  'src/ui/modal.js', 'src/ui/exam-view.js', 'src/ui/records-view.js', 'src/ui/review-view.js',
+  'src/records.js', 'src/review.js', 'src/study.js', 'src/backup.js',
+  'src/ui/modal.js', 'src/ui/exam-view.js', 'src/ui/records-view.js', 'src/ui/review-view.js', 'src/ui/study-view.js',
   'src/ui/data-view.js', 'src/ui/help-view.js', 'src/app.js',
   'data/config.json',
   'data/questions/LAW.json', 'data/questions/CARGO.json', 'data/questions/SAFE.json', 'data/questions/SERVICE.json',

@@ -9,6 +9,7 @@ import re
 import sys
 import time
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts, dev_on
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,10 +32,14 @@ def launch(p):
     return p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
 
 
-def new_page(browser, mode=None, **kw):
+def new_page(browser, mode=None, drafts=True, dev=True, **kw):
     opts = dict(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
     opts.update(kw)
     ctx = browser.new_context(**opts)
+    if drafts:
+        as_drafts(ctx, dev=dev)
+    elif dev:
+        dev_on(ctx)
     page = ctx.new_page()
     page.js_errors = []
     page.on("pageerror", lambda e: page.js_errors.append(str(e)))
@@ -122,7 +127,7 @@ with sync_playwright() as p:
     ctx.close()
 
     # ------------------------------------------------------------------
-    print("[TC-02] 실제 문제(초안 400문항, 미리보기)로 출제 100회")
+    print("[TC-02] 실제 문제(전체 초안, 미리보기)로 출제 100회")
     ctx, page = new_page(browser, "draft")
     make_nick(page, "출제검사")
     r = page.evaluate("""() => {
@@ -146,10 +151,12 @@ with sync_playwright() as p:
     check(r["n"] == 100 and r["bad"] == 0, "100회 모두 과목 순서·문항 수 25/15/25/15")
     check(r["dup"] == 0, "한 시험 안에 중복 문항 없음")
     check(r["dep"] == 0, "폐기 문제 출제 없음")
-    check(r["covered"] >= 380, f"100회 동안 400문항 중 {r['covered']}문항이 한 번 이상 출제 (고르게 출제)")
+    total_q = page.evaluate("Object.keys(CDME.app.getBank().byId).length")
+    check(r["covered"] >= 0.9 * total_q, f"100회 동안 {total_q}문항 중 {r['covered']}문항이 한 번 이상 출제 (고르게 출제)")
     real = page.evaluate("""() => { localStorage.setItem('cdme_sample', ''); return true; }""")
     page.reload()
     page.wait_for_selector("#start-exam")
+    page.wait_for_function("() => CDME.app.getBank() !== null")   # 문제 데이터를 다 읽은 뒤 누르기 (읽기 전 클릭은 무시됨)
     page.click("#start-exam")
     page.wait_for_selector(".modal")
     check("부족" in page.inner_text(".modal") or "미리보기" in page.inner_text(".modal"), "실제 모드: verified 0 → 시험 시작 차단 (verified만 출제)")
@@ -191,6 +198,53 @@ with sync_playwright() as p:
         for (let k = 0; k < 50; k++) { const ip = CDME.exam.buildExam(b, {}); if (ip.items.some(i => i.qid === 'LAW-0001')) n++; } return n; }""")
     check(dep == 0, "폐기 문제는 출제 50회 중 0회 (TC-15)")
     check(page.evaluate("() => CDME.app.store.getProfileData().wrongNotes['LAW-0001'] != null"), "폐기 문제의 오답 기록은 지우지 않고 보관")
+    ctx.close()
+
+    # ------------------------------------------------------------------
+    print("[실제 모드] 검수 완료(verified) 문제로 미리보기 없이 실전 시험")
+    ctx, page = new_page(browser, None, drafts=False, dev=False)
+    make_nick(page, "실전검사")
+    bank = page.evaluate("() => { const b = CDME.app.getBank(); const c = {}; Object.values(b.byId).forEach(q => { if (q.status === 'verified') c[q.subject] = (c[q.subject] || 0) + 1; }); return c; }")
+    need = {"LAW": 25, "CARGO": 15, "SAFE": 25, "SERVICE": 15}
+    if all(bank.get(k, 0) >= v for k, v in need.items()):
+        check("부족" not in page.inner_text("#view"), "문제 부족 안내 없음 (verified %s)" % bank)
+        start_exam(page)
+        ids = page.evaluate("() => CDME.app.store.getProfileData().inProgress.items.map(i => i.qid)")
+        st = page.evaluate("(ids) => ids.map(id => CDME.app.getBank().byId[id].status)", ids)
+        check(len(ids) == 80 and set(st) == {"verified"}, "80문항 모두 verified에서 출제")
+        check("검수 전" not in page.inner_text(".q-card") and page.locator(".notice-warn").count() == 0, "'검수 전'·미리보기 안내 없음")
+        answer_current(page, True)
+        end_by_timeout(page)
+        rec = page.evaluate("() => { const e = CDME.app.store.getProfileData().exams; return e[e.length-1]; }")
+        check(not rec.get("sample"), "실제 성적으로 기록 (미리보기 기록과 분리)")
+    else:
+        print("  SKIP verified가 과목별 기준에 못 미침 %s" % bank)
+    ctx.close()
+
+    # ------------------------------------------------------------------
+    print("[공개 모드] 개발·검수용 모드 숨김 (config dev_modes: false)")
+    ctx, page = new_page(browser, "draft", drafts=True, dev=False)   # 문제는 초안으로 보이게 + 예전에 켜 둔 미리보기 상태
+    make_nick(page, "공개검사")
+    page.wait_for_timeout(500)
+    check(page.evaluate("localStorage.getItem('cdme_sample')") is None, "예전에 켜 둔 미리보기 모드는 자동으로 꺼짐")
+    check(page.locator("[data-draft-on], [data-sample-on], [data-sample-off]").count() == 0, "미리보기·샘플 버튼 없음 (검수 문제 부족해도)")
+    page.click("#start-exam")
+    page.wait_for_selector(".modal")
+    mt = page.inner_text(".modal")
+    check("샘플" not in mt and "미리보기" not in mt and "검수하고 있습니다" in mt, "시작 불가 안내에도 샘플·미리보기 권유 없음")
+    page.click(".modal [data-act=ok]")
+    check(page.evaluate("localStorage.getItem('cdme_sample')") is None, "확인을 눌러도 샘플 모드로 바뀌지 않음")
+    ctx.close()
+    ctx, page = new_page(browser, None, drafts=True, dev=False)
+    page.goto(BASE + "?dev=1#/home")
+    make_nick(page, "운영자")
+    check(page.locator("[data-draft-on]").count() == 1, "운영자: 주소에 ?dev=1 을 붙이면 미리보기 버튼 표시")
+    page.click("[data-draft-on]")
+    page.wait_for_selector("text=검수 미리보기 모드")
+    page.goto(BASE + "#/home")
+    page.reload()
+    page.wait_for_selector("text=검수 미리보기 모드")
+    check(True, "같은 창에서는 ?dev=1 없이도 유지")
     ctx.close()
 
     # ------------------------------------------------------------------

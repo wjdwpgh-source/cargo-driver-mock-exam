@@ -102,6 +102,7 @@
         '<div class="feedback is-correct"><p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
         (q.law_ref ? '<p class="fb-law small">관련 법령: ' + esc(q.law_ref) + '</p>' : '') + '</div>' +
         '<div class="rv-actions">' +
+        UI.bookmarkBtnHtml(CDME.study.isBookmarked(profileData(ctx, active).bookmarks, id, sample), id) +
         (n.state === 'active' ? '<button type="button" class="btn btn-outline btn-sm" data-act="master">복습 완료 처리</button>'
           : '<button type="button" class="btn btn-outline btn-sm" data-act="activate">다시 복습하기</button>') +
         '<button type="button" class="btn btn-ghost btn-sm danger-text" data-act="remove">오답노트에서 제거</button>' +
@@ -220,25 +221,36 @@
     if (rec) ctx.go('review-result?id=' + encodeURIComponent(rec.id)); else ctx.go('notes');
   }
 
-  function renderPlay(ctx, active) {
+  // 복습 재시험 설정
+  var REVIEW_KIND = {
+    key: 'reviewInProgress', back: 'notes', title: '복습 재시험', tag: '복습',
+    answer: function (rv, dd, bank, i, orig) { return RV.answer(rv, dd.wrongNotes, bank, i, orig); },
+    tally: RV.tally,
+    finish: function (ctx, active, quit) { finishReview(ctx, active, quit); },
+    showWrongCount: true
+  };
+  function renderPlay(ctx, active) { renderSession(ctx, active, REVIEW_KIND); }
+
+  /* 즉시 해설 풀이 화면 (복습 재시험·집중 학습 공용) */
+  function renderSession(ctx, active, K) {
     if (!needBank(ctx)) return;
     var view = ctx.view, store = ctx.store, bank = ctx.getBank();
     var d = profileData(ctx, active);
-    var rv = d.reviewInProgress;
-    if (!rv) { ctx.go('notes'); return; }
+    var rv = d[K.key];
+    if (!rv) { ctx.go(K.back); return; }
     if (ctx.ensureKind(rv)) return;
     // 진행 중 문제가 삭제·폐기되었으면 그 문항은 건너뜀
     var total = rv.items.length;
     var timerId = null, last = Date.now(), done = false;
 
-    function persist() { store.updateProfileData(active.id, function (dd) { dd.reviewInProgress = rv; }); }
+    function persist() { store.updateProfileData(active.id, function (dd) { dd[K.key] = rv; }); }
 
     view.innerHTML =
       '<div class="exam review">' +
       '<div class="exam-bar"><span class="exam-subject" id="rp-subject"></span><span class="exam-progress" id="rp-progress"></span>' +
-      (rv.timed ? '<span class="exam-timer" id="rp-timer" role="timer"></span>' : '<span class="tag tag-note">복습</span>') + '</div>' +
+      (rv.timed ? '<span class="exam-timer" id="rp-timer" role="timer"></span>' : '<span class="tag tag-note">' + esc(K.tag) + '</span>') + '</div>' +
       '<p class="exam-tally small" id="rp-tally" aria-live="polite"></p>' +
-      '<h1 class="sr-only">복습 재시험</h1>' +
+      '<h1 class="sr-only">' + esc(K.title) + '</h1>' +
       '<article class="card q-card" id="rp-card"></article>' +
       '<div class="exam-tools"><button type="button" class="btn btn-ghost btn-sm" id="rp-later">나중에 이어 풀기</button>' +
       '<button type="button" class="btn btn-ghost btn-sm" id="rp-quit">그만하고 결과 보기</button></div>' +
@@ -252,7 +264,7 @@
 
     function paint(focusFb) {
       var i = rv.current, it = rv.items[i], q = bank.byId[it.qid];
-      var t = RV.tally(rv);
+      var t = K.tally(rv);
       document.getElementById('rp-subject').textContent = short(it.subject);
       document.getElementById('rp-progress').innerHTML = '<b>' + (i + 1) + '</b> / ' + total;
       document.getElementById('rp-tally').innerHTML = '<span class="ok-text">정답 ' + t.correct + '</span> · <span class="danger-text">오답 ' + t.wrong + '</span>' +
@@ -263,9 +275,12 @@
         var ans = rv.answers[i], res = rv.results[i];
         var E = CDME.exam, hUsed = E.hintUsed(rv, i), h = E.hintFor(q);
         var elim = ans == null && hUsed && h.type === 'elim' ? h.remove : 0;
-        var n = profileData(ctx, active).wrongNotes[it.qid];
+        var pd = profileData(ctx, active);
+        var n = K.showWrongCount ? pd.wrongNotes[it.qid] : null;
         elCard.innerHTML =
-          '<p class="q-num">문 ' + (i + 1) + '. ' + (n ? '<span class="tag tag-bad">' + (n.wrong_count || 0) + '회 틀림</span>' : '') + '</p>' +
+          '<p class="q-num q-num-row"><span>문 ' + (i + 1) + '. ' + (n ? '<span class="tag tag-bad">' + (n.wrong_count || 0) + '회 틀림</span>' : '') +
+          (K.showDifficulty && q.difficulty ? '<span class="tag tag-skip">' + esc(CDME.study.DIFF_NAMES[q.difficulty] || '') + '</span>' : '') + '</span>' +
+          UI.bookmarkBtnHtml(CDME.study.isBookmarked(pd.bookmarks, q.id, ctx.sampleMode()), q.id) + '</p>' +
           '<p class="q-text">' + esc(q.question) + '</p>' +
           (q.image ? '<img class="q-img" src="' + esc(q.image) + '" alt="문제 그림">' : '') +
           '<div class="choices' + (ans != null ? ' locked' : '') + '" role="group" aria-label="보기">' +
@@ -285,7 +300,8 @@
             (hUsed ? ' <span class="tag tag-hint">💡 힌트 사용</span>' : '') + '</p>' +
             (res.mastered ? '<p class="mastered-msg">🎓 연속 2번 맞혀 <b>복습 완료</b>로 옮겼습니다!</p>'
               : res.correct && res.streak ? '<p class="small">연속 정답 ' + res.streak + '/2 – 한 번 더 맞히면 복습 완료</p>'
-              : res.reactivated ? '<p class="small">복습 완료였던 문제라 다시 복습 목록으로 옮겼습니다.</p>' : '') +
+              : res.reactivated ? '<p class="small">복습 완료였던 문제라 다시 복습 목록으로 옮겼습니다.</p>'
+              : res.noted ? '<p class="small">📒 오답노트에 담았습니다. 오답노트에서 다시 복습할 수 있습니다.</p>' : '') +
             '<p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
             (q.law_ref ? '<p class="fb-law small">관련 법령: ' + esc(q.law_ref) + '</p>' : '') +
             '<div class="fb-actions">' + UI.reportLinkHtml(bank, q) + '</div></div>' : '');
@@ -296,7 +312,7 @@
         }
       }
       elPrev.disabled = i === 0;
-      var allDone = RV.tally(rv).unanswered === 0;
+      var allDone = K.tally(rv).unanswered === 0;
       elNext.textContent = i < total - 1 ? '다음 →' : allDone ? '복습 결과 보기' : '안 푼 문항으로';
       if (focusFb === 'hint') { var hbox = document.getElementById('rp-hintbox'); if (hbox) { hbox.focus({ preventScroll: true }); hbox.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } }
       else if (focusFb) { var fb = document.getElementById('rp-fb'); if (fb) { fb.focus({ preventScroll: true }); fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } }
@@ -318,8 +334,8 @@
       }
       var res;
       store.updateProfileData(active.id, function (dd) {
-        res = RV.answer(rv, dd.wrongNotes, bank, i, RV.originalChoice(rv.items[i], pos));
-        dd.reviewInProgress = rv;
+        res = K.answer(rv, dd, bank, i, RV.originalChoice(rv.items[i], pos));
+        dd[K.key] = rv;
       });
       if (res && res.mastered) UI.toast('🎓 복습 완료!');
       paint(true);
@@ -332,7 +348,7 @@
       rv.items.forEach(function (it, k) { var q = bank.byId[it.qid]; if (f < 0 && rv.answers[k] == null && q && q.status !== 'deprecated') f = k; });
       if (f < 0) end(false); else move(f);
     }
-    function end(quit) { if (done) return; done = true; cleanup(); finishReview(ctx, active, quit); }
+    function end(quit) { if (done) return; done = true; cleanup(); K.finish(ctx, active, quit); }
     function tick() {
       var now = Date.now(); rv.remainingMs -= Math.max(0, Math.min(now - last, 60000)); last = now;
       elTimer.textContent = CDME.exam.formatTime(rv.remainingMs);
@@ -357,11 +373,11 @@
 
     elPrev.onclick = function () { move(rv.current - 1); };
     elNext.onclick = next;
-    document.getElementById('rp-later').onclick = function () { ctx.go('notes'); };
+    document.getElementById('rp-later').onclick = function () { ctx.go(K.back); };
     document.getElementById('rp-quit').onclick = function () {
-      var t = RV.tally(rv);
+      var t = K.tally(rv);
       if (!t.unanswered) return end(false);
-      modal.confirm({ title: '복습을 마칠까요?', message: '안 푼 ' + t.unanswered + '문항은 기록하지 않고, 지금까지 푼 결과만 저장합니다.', okText: '마치기', cancelText: '계속 풀기' })
+      modal.confirm({ title: K.tag + '을 마칠까요?', message: '안 푼 ' + t.unanswered + '문항은 기록하지 않고, 지금까지 푼 결과만 저장합니다.', okText: '마치기', cancelText: '계속 풀기' })
         .then(function (ok) { if (ok) end(true); });
     };
     document.addEventListener('keydown', onKey);
@@ -403,5 +419,6 @@
   CDME.views.notes = renderNotes;
   CDME.views.review = renderSetup;
   CDME.views.reviewPlay = renderPlay;
+  CDME.views.session = renderSession;
   CDME.views.reviewResult = renderReviewResult;
 })(window);

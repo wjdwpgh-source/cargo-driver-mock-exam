@@ -478,3 +478,27 @@ body.in-exam .container { padding-bottom: 6.5rem; }
 .choice.eliminated .choice-text, .choice.eliminated .choice-no { text-decoration: line-through; }
 .choice.eliminated .choice-mark { font-size: .8rem; color: var(--muted); }
 .tag-hint { background: var(--warn-soft); color: var(--warn); }
+
+/* ---------- 북마크·집중 학습·취약 과목 (v1.1.0, PRD 12.1) ---------- */
+.q-num-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.q-num-row .tag { margin-left: 4px; }
+.bm-btn {
+  display: inline-flex; align-items: center; gap: 2px; min-height: 40px; padding: 0 12px;
+  border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted);
+  font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+}
+.bm-btn.on { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+.bm-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.row.wrap { flex-wrap: wrap; margin-top: 8px; }
+.weak-list { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.weak-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center;
+  padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px;
+}
+.weak-row.is-weak { border-color: var(--danger); background: var(--danger-soft); }
+.weak-name { font-weight: 700; }
+.weak-rate { text-align: right; }
+.weak-msg { grid-column: 1 / 2; }
+.weak-row .btn { grid-column: 2 / 3; grid-row: 2 / 3; justify-self: end; }
+.seg-item b { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: 2px; }
+.seg-item input:checked + span b { color: inherit; }

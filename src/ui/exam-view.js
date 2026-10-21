@@ -119,7 +119,8 @@
       elTally.innerHTML = '<span class="ok-text">정답 ' + t.correct + '</span> · <span class="danger-text">오답 ' + t.wrong + '</span> · 남은 문항 ' + t.unanswered;
 
       elCard.innerHTML =
-        '<p class="q-num">문 ' + (i + 1) + '.' + (q._status && q._status !== 'verified' ? ' <span class="tag tag-wait">검수 전 · ' + esc(q.id) + '</span>' : '') + '</p>' +
+        '<p class="q-num q-num-row"><span>문 ' + (i + 1) + '.' + (q._status && q._status !== 'verified' ? ' <span class="tag tag-wait">검수 전 · ' + esc(q.id) + '</span>' : '') + '</span>' +
+        bookmarkBtnHtml(CDME.study.isBookmarked((store.getProfileData(active.id) || {}).bookmarks, q.id, ctx.sampleMode()), q.id) + '</p>' +
         '<p class="q-text">' + esc(q.question) + '</p>' +
         (q.image ? '<img class="q-img" src="' + esc(q.image) + '" alt="문제 ' + (i + 1) + ' 그림">' : '') +
         '<div class="choices' + (answered ? ' locked' : '') + '" role="group" aria-label="보기">' +
@@ -330,7 +331,13 @@
       : '<button type="button" class="btn btn-ghost btn-sm" disabled title="GitHub 저장소 공개 후 사용할 수 있습니다">오류 신고 (준비 중)</button>';
   }
 
-  function reviewCardHtml(bank, notes, a, i) {
+  /* 북마크 버튼 (PRD 12.1): 누르면 app.js 공통 처리기가 켜고 끈다 */
+  function bookmarkBtnHtml(on, qid) {
+    return '<button type="button" class="bm-btn' + (on ? ' on' : '') + '" data-bm="' + esc(qid) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+      '<span aria-hidden="true">' + (on ? '★' : '☆') + '</span> <span class="bm-label">' + (on ? '북마크됨' : '북마크') + '</span></button>';
+  }
+
+  function reviewCardHtml(bank, notes, a, i, bm, sample) {
     var q = bank.byId[a.qid];
     var head = '<p class="rv-head"><span class="q-num">문 ' + (i + 1) + '.</span> <span class="muted small">' +
       esc(subjectShort(q ? q.subject : a.qid.split('-')[0])) + '</span> ' +
@@ -355,6 +362,7 @@
       '<div class="feedback ' + (a.correct ? 'is-correct' : 'is-wrong') + '"><p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
       (q.law_ref ? '<p class="fb-law small">관련 법령: ' + esc(q.law_ref) + '</p>' : '') + '</div>' +
       '<div class="rv-actions">' +
+      bookmarkBtnHtml(CDME.study.isBookmarked(bm, q.id, sample), q.id) +
       (inNote ? '<span class="tag tag-note">📒 오답노트에 있음</span>'
         : '<button type="button" class="btn btn-outline btn-sm" data-add-note="' + esc(q.id) + '" data-choice="' + (a.choice == null ? '' : a.choice) + '">오답노트에 담기</button>') +
       reportLinkHtml(bank, q) + '</div></li>';
@@ -419,11 +427,12 @@
 
     var list = document.getElementById('rv-list');
     function paintList() {
-      var notes = (store.getProfileData(active.id) || {}).wrongNotes || {};
+      var pdata = store.getProfileData(active.id) || {};
+      var notes = pdata.wrongNotes || {};
       var html = '';
       ex.answers.forEach(function (a, i) {
         var show = filter === 'all' || (filter === 'wrong' && !a.correct && a.choice != null) || (filter === 'skip' && a.choice == null);
-        if (show) html += reviewCardHtml(bank, notes, a, i);
+        if (show) html += reviewCardHtml(bank, notes, a, i, pdata.bookmarks, !!ex.sample);
       });
       list.innerHTML = html || '<li class="muted empty">해당하는 문제가 없습니다.</li>';
     }
@@ -453,7 +462,7 @@
   }
 
   // 다른 화면에서 함께 쓰는 도구
-  CDME.ui = { subjectShort: subjectShort, toast: toast, reportLinkHtml: reportLinkHtml, hintAreaHtml: hintAreaHtml };
+  CDME.ui = { subjectShort: subjectShort, toast: toast, reportLinkHtml: reportLinkHtml, hintAreaHtml: hintAreaHtml, bookmarkBtnHtml: bookmarkBtnHtml };
 
   CDME.views = CDME.views || {};
   CDME.views.exam = renderExam;
