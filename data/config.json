@@ -11,5 +11,6 @@
   },
   "review": { "mastery_streak": 2, "recent_days": 7, "frequent_count": 2 },
   "data_date": "2026-10-20",
+  "dev_modes": false,
   "issue_url": "https://github.com/wjdwpgh-source/cargo-driver-mock-exam/issues/new"
 }
