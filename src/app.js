@@ -34,9 +34,23 @@
     loadBank();
   }
   function setSampleMode(on) { setDevKind(on ? 'sample' : ''); }
+
+  /* 공개 사이트에서는 개발·검수용 모드를 숨긴다 (PRD v1.21, config.json "dev_modes": false)
+   * 운영자는 주소 뒤에 ?dev=1 을 붙여 열면(그 창을 닫을 때까지) 미리보기·샘플 모드를 쓸 수 있다. */
+  var DEV_KEY = 'cdme_dev';
+  try {
+    if (/[?&]dev=1(&|$)/.test(root.location.search)) root.sessionStorage.setItem(DEV_KEY, '1');
+  } catch (e) { /* 무시 */ }
+  function devAllowed(b) {
+    try { if (root.sessionStorage.getItem(DEV_KEY) === '1') return true; } catch (e) { /* 무시 */ }
+    b = b || bank;
+    return !(b && b.config && b.config.dev_modes === false);
+  }
+
   // 기록·진행 상태가 만들어진 모드로 맞춤. 바꿨으면 true
   function ensureKind(obj) {
     var want = obj && obj.sample ? (obj.kind || 'sample') : '';
+    if (want && !devAllowed()) return false;   // 공개 모드: 예전 미리보기·샘플 기록은 실제 모드에서 그대로 보여 줌
     if (want === devKind) return false;
     setDevKind(want);
     return true;
@@ -311,7 +325,7 @@
       '<button type="button" class="btn btn-outline" id="go-review">복습할 오답 <b>' + wrongActive + '</b>문제</button>' +
       '</section>' +
       '<section class="card"><h2>문제 준비 현황' + (devKind === 'sample' ? ' <span class="tag tag-wait">샘플</span>' : devKind === 'draft' ? ' <span class="tag tag-wait">미리보기</span>' : '') + '</h2>' + bankStatusHtml() +
-      (!sampleMode && bank && !ready ? '<p class="small">검수가 끝나기 전에 시험을 풀어 보려면 ' +
+      (!sampleMode && bank && !ready && devAllowed() ? '<p class="small">검수가 끝나기 전에 시험을 풀어 보려면 ' +
         (draftReady() ? '<button type="button" class="link-btn" data-draft-on>검수 전 실제 문제로 미리보기</button> 또는 ' : '') +
         '<button type="button" class="link-btn" data-sample-on>샘플 문제로 체험하기</button> (개발·검수용)</p>' : '') +
       '</section>' +
@@ -346,10 +360,10 @@
         title: '아직 시험을 볼 수 없습니다',
         message: '출제 가능한(검수 완료) 문제가 부족한 과목이 있습니다.<br>' +
           check.lacking.map(function (l) { return '· ' + esc(l.name) + ': ' + l.have + ' / ' + l.need; }).join('<br>') +
-          (sampleMode ? '' : '<br><br>개발 확인용 <b>샘플 문제</b>로 체험해 볼 수 있습니다.' +
+          (sampleMode || !devAllowed() ? '<br><br>문제를 검수하고 있습니다. 잠시 후 다시 이용해 주세요.' : '<br><br>개발 확인용 <b>샘플 문제</b>로 체험해 볼 수 있습니다.' +
             (draftReady() ? '<br>검수 전 실제 문제를 풀어 보려면 대시보드의 <b>검수 전 실제 문제로 미리보기</b>를 누르세요.' : '')),
-        okText: sampleMode ? '확인' : '샘플로 체험', cancelText: '닫기'
-      }).then(function (ok) { if (ok && !sampleMode) setSampleMode(true); });
+        okText: sampleMode || !devAllowed() ? '확인' : '샘플로 체험', cancelText: '닫기'
+      }).then(function (ok) { if (ok && !sampleMode && devAllowed()) setSampleMode(true); });
       return;
     }
     var d = store.getProfileData(active.id);
@@ -460,6 +474,8 @@
     render();
     CDME.questions.load('data/', devKind === 'sample' ? 'samples/' : 'questions/').then(function (b) {
       if (seq !== loadSeq) return;
+      // 공개 모드인데 예전에 켜 둔 미리보기·샘플 모드가 남아 있으면 실제 모드로 되돌림
+      if (devKind && !devAllowed(b)) { setDevKind(''); return; }
       if (devKind === 'draft') promoteDrafts(b);
       bank = b;
       if (b.warnings.length) console.warn('[문제 데이터 경고]', b.warnings);
@@ -492,6 +508,7 @@
     fonts: FONTS, getFont: getFont, setFont: setFont,
     getBank: function () { return bank; },
     sampleMode: function () { return sampleMode; },
+    devAllowed: function () { return devAllowed(); },
     devKind: function () { return devKind; },
     setDevKind: setDevKind,
     ensureKind: ensureKind,
@@ -503,8 +520,8 @@
   view.addEventListener('click', function (e) {
     var t = e.target;
     if (t.hasAttribute && t.hasAttribute('data-sample-off')) setSampleMode(false);
-    if (t.hasAttribute && t.hasAttribute('data-sample-on')) setSampleMode(true);
-    if (t.hasAttribute && t.hasAttribute('data-draft-on')) setDevKind('draft');
+    if (t.hasAttribute && t.hasAttribute('data-sample-on') && devAllowed()) setSampleMode(true);
+    if (t.hasAttribute && t.hasAttribute('data-draft-on') && devAllowed()) setDevKind('draft');
   });
 
   /* ---------- 시작 ---------- */
