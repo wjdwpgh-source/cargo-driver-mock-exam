@@ -3,7 +3,7 @@
  * - 평소에는 인터넷에서 최신 파일을 받고(받은 파일은 저장), 인터넷이 안 되면 저장된 파일 사용
  * - 파일 구성이 바뀌면 VERSION을 올린다
  */
-var VERSION = 'cdme-v1.20';
+var VERSION = 'cdme-v1.21';
 var FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'src/styles.css', 'src/util.js', 'src/store.js', 'src/questions.js', 'src/exam.js', 'src/notes.js',
