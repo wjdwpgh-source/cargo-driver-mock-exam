@@ -3,6 +3,8 @@
  * { "app": "cdme", "kind": "backup", "schemaVersion": 1, "exportedAt": ISO,
  *   "profiles": [ { "name": "닉네임", "createdAt": ISO, "data": { exams, wrongNotes, reviewSessions, bookmarks, studySessions } } ] }
  *   (bookmarks·studySessions는 v1.1.0 추가 – 없는 예전 백업도 그대로 불러옴)
+ * (v2.0) schemaVersion 2: profiles[].data = { cargo: {...}, license: {...} } – 시험 종류별 기록
+ *   schemaVersion 1 백업은 화물(cargo) 기록으로 읽는다
  */
 (function (root) {
   'use strict';
@@ -27,12 +29,21 @@
     };
   }
 
-  // FR-901: profiles = [{ name, createdAt, data }]
+  function kinds() { return S.EXAM_KINDS || ['cargo']; }
+
+  // 시험별 기록 묶음 정리. all = { cargo, license } (없는 시험은 빠짐)
+  function cleanAll(all) {
+    var out = {};
+    kinds().forEach(function (k) { if (all && all[k]) out[k] = cleanData(all[k]); });
+    return out;
+  }
+
+  // FR-901: profiles = [{ name, createdAt, data: { cargo, license } }]
   function buildBackup(profiles, now) {
     return {
       app: APP, kind: KIND, schemaVersion: S.SCHEMA_VERSION,
       exportedAt: now || util.nowISO(),
-      profiles: profiles.map(function (p) { return { name: p.name, createdAt: p.createdAt || null, data: cleanData(p.data) }; })
+      profiles: profiles.map(function (p) { return { name: p.name, createdAt: p.createdAt || null, data: cleanAll(p.data) }; })
     };
   }
 
@@ -41,7 +52,14 @@
     function p(n) { return n < 10 ? '0' + n : '' + n; }
     var stamp = d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
     var safe = String(label || '전체').replace(/[\\/:*?"<>|\s]+/g, '_');
-    return '화물모의시험_백업_' + safe + '_' + stamp + '.json';
+    return '면허문제_백업_' + safe + '_' + stamp + '.json';
+  }
+
+  // 시험별 요약 { cargo: {...}, license: {...} }
+  function summarizeAll(all) {
+    var out = {};
+    kinds().forEach(function (k) { if (all && all[k]) out[k] = summarizeData(all[k]); });
+    return out;
   }
 
   function summarizeData(d) {
@@ -67,22 +85,32 @@
     if (typeof j.schemaVersion !== 'number') return { ok: false, error: '백업 파일 버전 정보가 없습니다.' };
     if (j.schemaVersion > S.SCHEMA_VERSION) return { ok: false, error: '더 새로운 버전의 프로그램에서 만든 백업입니다. 페이지를 새로고침해 최신 버전으로 불러오세요.' };
     if (!Array.isArray(j.profiles) || !j.profiles.length) return { ok: false, error: '백업 파일에 닉네임 기록이 없습니다.' };
+    function badData(d) {
+      if ((d.exams && !Array.isArray(d.exams)) || (d.reviewSessions && !Array.isArray(d.reviewSessions)) ||
+          (d.studySessions && !Array.isArray(d.studySessions)) || (d.bookmarks && (typeof d.bookmarks !== 'object' || Array.isArray(d.bookmarks))) ||
+          (d.wrongNotes && (typeof d.wrongNotes !== 'object' || Array.isArray(d.wrongNotes)))) return '기록 형식이 올바르지 않습니다.';
+      var bad = (d.exams || []).some(function (e) { return !e || typeof e.id !== 'string' || typeof e.score !== 'number' || !Array.isArray(e.answers); });
+      return bad ? '시험 기록 형식이 올바르지 않습니다.' : null;
+    }
     var profiles = [];
     for (var i = 0; i < j.profiles.length; i++) {
       var p = j.profiles[i];
       var name = S.normalizeName(p && p.name);
       if (!name) return { ok: false, error: (i + 1) + '번째 닉네임 이름이 없습니다.' };
-      var d = p.data || {};
-      if ((d.exams && !Array.isArray(d.exams)) || (d.reviewSessions && !Array.isArray(d.reviewSessions)) ||
-          (d.studySessions && !Array.isArray(d.studySessions)) || (d.bookmarks && (typeof d.bookmarks !== 'object' || Array.isArray(d.bookmarks))) ||
-          (d.wrongNotes && (typeof d.wrongNotes !== 'object' || Array.isArray(d.wrongNotes)))) {
-        return { ok: false, error: '"' + name + '"의 기록 형식이 올바르지 않습니다.' };
+      var raw = p.data || {};
+      if (typeof raw !== 'object' || Array.isArray(raw)) return { ok: false, error: '"' + name + '"의 기록 형식이 올바르지 않습니다.' };
+      // schemaVersion 1 백업 = 화물 기록 하나
+      var all = j.schemaVersion < 2 ? { cargo: raw } : raw;
+      var data = {};
+      for (var k = 0; k < kinds().length; k++) {
+        var kind = kinds()[k];
+        if (!all[kind]) continue;
+        var msg = typeof all[kind] !== 'object' || Array.isArray(all[kind]) ? '기록 형식이 올바르지 않습니다.' : badData(all[kind]);
+        if (msg) return { ok: false, error: '"' + name + '"의 ' + msg };
+        data[kind] = cleanData(all[kind]);
       }
-      var bad = (d.exams || []).some(function (e) { return !e || typeof e.id !== 'string' || typeof e.score !== 'number' || !Array.isArray(e.answers); });
-      if (bad) return { ok: false, error: '"' + name + '"의 시험 기록 형식이 올바르지 않습니다.' };
-      profiles.push({ name: name, createdAt: p.createdAt || null, data: cleanData(d) });
+      profiles.push({ name: name, createdAt: p.createdAt || null, data: data });
     }
-    // 이후 schemaVersion이 오르면 여기서 백업 데이터도 변환한다
     return { ok: true, backup: { schemaVersion: j.schemaVersion, exportedAt: j.exportedAt || null, profiles: profiles } };
   }
 
@@ -133,7 +161,7 @@
   function plan(backup, existingProfiles) {
     return backup.profiles.map(function (p) {
       var hit = existingProfiles.filter(function (e) { return S.normalizeName(e.name).toLowerCase() === p.name.toLowerCase(); })[0];
-      return { name: p.name, data: p.data, createdAt: p.createdAt, existingId: hit ? hit.id : null, action: hit ? 'merge' : 'new', summary: summarizeData(p.data) };
+      return { name: p.name, data: p.data, createdAt: p.createdAt, existingId: hit ? hit.id : null, action: hit ? 'merge' : 'new', summary: summarizeAll(p.data) };
     });
   }
 
@@ -143,16 +171,25 @@
       if (st.action === 'skip') return { name: st.name, action: 'skip', ok: true };
       if (st.action === 'new' || st.action === 'rename') {
         var name = st.action === 'rename' ? (st.newName || freeName(st.name, store.listProfiles().map(function (x) { return x.name; }))) : st.name;
-        var r = store.addProfileWithData(name, cleanData(st.data), { createdAt: st.createdAt });
+        var r = store.addProfileWithData(name, cleanAll(st.data), { createdAt: st.createdAt });
         return { name: st.name, action: st.action, ok: !!r.ok, error: r.error, profileId: r.profile && r.profile.id, newName: name };
       }
+      // 덮어쓰기·합치기는 백업에 들어 있는 시험만 바꾸고, 없는 시험의 기록은 그대로 둔다
       if (st.action === 'overwrite') {
-        var d = cleanData(st.data); d.inProgress = null; d.reviewInProgress = null; d.studyInProgress = null;
-        return { name: st.name, action: 'overwrite', ok: store.replaceProfileData(st.existingId, d), profileId: st.existingId };
+        var ok1 = true;
+        Object.keys(st.data || {}).forEach(function (kind) {
+          var d = cleanData(st.data[kind]); d.inProgress = null; d.reviewInProgress = null; d.studyInProgress = null;
+          ok1 = store.replaceProfileData(st.existingId, d, kind) && ok1;
+        });
+        return { name: st.name, action: 'overwrite', ok: ok1, profileId: st.existingId };
       }
       if (st.action === 'merge') {
-        var m = merge(store.getProfileData(st.existingId) || {}, st.data);
-        return { name: st.name, action: 'merge', ok: store.replaceProfileData(st.existingId, m), profileId: st.existingId };
+        var ok2 = true;
+        Object.keys(st.data || {}).forEach(function (kind) {
+          var m = merge(store.getProfileData(st.existingId, kind) || {}, st.data[kind]);
+          ok2 = store.replaceProfileData(st.existingId, m, kind) && ok2;
+        });
+        return { name: st.name, action: 'merge', ok: ok2, profileId: st.existingId };
       }
       return { name: st.name, action: st.action, ok: false, error: '알 수 없는 처리 방식' };
     });
@@ -181,7 +218,7 @@
 
   CDME.backup = {
     buildBackup: buildBackup, fileName: fileName, parse: parse, plan: plan, apply: apply, merge: merge,
-    freeName: freeName, summarizeData: summarizeData, resetData: resetData, deleteExam: deleteExam, cleanData: cleanData
+    freeName: freeName, summarizeData: summarizeData, summarizeAll: summarizeAll, cleanAll: cleanAll, resetData: resetData, deleteExam: deleteExam, cleanData: cleanData
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = CDME.backup;
 })(typeof window !== 'undefined' ? window : globalThis);

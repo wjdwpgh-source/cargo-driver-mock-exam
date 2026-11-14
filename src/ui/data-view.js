@@ -17,7 +17,8 @@
   }
 
   function backupProfiles(store, ids) {
-    return ids.map(function (id) { var p = store.getProfile(id); return { name: p.name, createdAt: p.createdAt, data: store.getProfileData(id) }; });
+    // (v2.0) 두 시험의 기록을 모두 담는다
+    return ids.map(function (id) { var p = store.getProfile(id); return { name: p.name, createdAt: p.createdAt, data: store.getProfileAll(id) }; });
   }
 
   function exportFor(store, ids, label) {
@@ -30,11 +31,21 @@
     return '실전 ' + s.exams + '회 · 오답 ' + s.notes + ' · 복습 완료 ' + s.mastered + ' · 복습 ' + s.reviews + '회';
   }
 
+  // 시험별 요약 { cargo: s, license: s } → "화물: … / 대형: …" (기록 없는 시험은 생략)
+  function sumAllText(all) {
+    var parts = Object.keys(all || {}).filter(function (k) {
+      var s = all[k]; return s.exams || s.notes || s.mastered || s.reviews || s.bookmarks || s.studies;
+    }).map(function (k) { return CDME.ui.examShort(k) + ': ' + sumText(all[k]); });
+    return parts.length ? parts.join(' / ') : '기록 없음';
+  }
+
   function renderData(ctx, active) {
     var view = ctx.view, store = ctx.store, toast = CDME.ui.toast;
     var profiles = store.listProfiles();
     var d = store.getProfileData(active.id);
     var s = B.summarizeData(d);
+    var allSum = B.summarizeAll(store.getProfileAll(active.id));
+    var examName = CDME.ui.examName(store.exam);
     var reviewCount = (d.reviewSessions || []).length;
 
     view.innerHTML = ctx.noticeHtml() +
@@ -43,10 +54,10 @@
       '<p class="muted small">기록은 이 기기의 브라우저에만 저장됩니다. 다른 기기로 옮기거나 초기화하기 전에 백업 파일을 만들어 두세요.</p>' +
 
       '<section class="card"><h2>백업 파일 만들기</h2>' +
-      '<p class="small"><b>' + esc(active.name) + '</b> · ' + esc(sumText(s)) + '</p>' +
+      '<p class="small"><b>' + esc(active.name) + '</b> · ' + esc(sumAllText(allSum)) + '</p>' +
       '<div class="btn-col"><button type="button" class="btn btn-primary" id="exp-me">' + esc(active.name) + ' 기록 백업</button>' +
       (profiles.length > 1 ? '<button type="button" class="btn btn-outline" id="exp-all">이 기기 전체 백업 (닉네임 ' + profiles.length + '개)</button>' : '') +
-      '</div><p class="muted small">진행 중인 시험·복습은 백업에 포함되지 않습니다. 파일은 브라우저의 다운로드 폴더에 저장됩니다.</p></section>' +
+      '</div><p class="muted small">백업 파일에는 두 시험(화물·대형면허)의 기록이 모두 들어갑니다. 진행 중인 시험·복습은 포함되지 않습니다. 파일은 브라우저의 다운로드 폴더에 저장됩니다.</p></section>' +
 
       '<section class="card"><h2>백업 불러오기</h2>' +
       '<p class="small">다른 기기에서 만든 백업 파일(.json)을 선택하세요.</p>' +
@@ -55,7 +66,7 @@
       '<div id="imp-plan"></div></section>' +
 
       '<section class="card danger-zone"><h2>기록 초기화</h2>' +
-      '<p class="small">초기화할 범위를 고르세요. <b>' + esc(active.name) + '</b> 닉네임의 기록만 지워집니다.</p>' +
+      '<p class="small">초기화할 범위를 고르세요. <b>' + esc(active.name) + '</b> 닉네임의 <b>' + esc(examName) + '</b> 기록만 지워집니다(다른 시험 기록은 그대로).</p>' +
       '<div class="opts">' +
       '<label class="opt"><input type="radio" name="rs" value="exams" checked><span class="opt-main"><span>실전 기록만</span><span class="muted small">응시 이력·점수 그래프 (' + s.exams + '회)' + (d.inProgress ? ' + 진행 중 시험' : '') + '</span></span></label>' +
       '<label class="opt"><input type="radio" name="rs" value="notes"><span class="opt-main"><span>오답노트만</span><span class="muted small">오답 ' + s.notes + '문제 · 복습 완료 ' + s.mastered + '문제' + (d.reviewInProgress ? ' + 진행 중 복습' : '') + '</span></span></label>' +
@@ -95,7 +106,7 @@
             ? '<option value="merge" selected>기존 기록과 합치기</option><option value="overwrite">기존 기록을 백업으로 덮어쓰기</option><option value="rename">다른 이름으로 따로 가져오기</option><option value="skip">가져오지 않기</option>'
             : '<option value="new" selected>새 닉네임으로 추가</option><option value="skip">가져오지 않기</option>';
           return '<li><div><b>' + esc(st.name) + '</b>' + (st.existingId ? ' <span class="tag tag-wait">같은 닉네임 있음</span>' : '') +
-            '<span class="muted small d-block">' + esc(sumText(st.summary)) + '</span></div>' +
+            '<span class="muted small d-block">' + esc(sumAllText(st.summary)) + '</span></div>' +
             '<label><span class="sr-only">' + esc(st.name) + ' 처리 방법</span><select class="input input-sm" data-step="' + i + '">' + opts + '</select></label></li>';
         }).join('') + '</ul>' +
         '<div class="row"><button type="button" class="btn btn-primary" id="imp-apply">불러오기</button><button type="button" class="btn btn-ghost" id="imp-cancel">취소</button></div></div>';
@@ -131,7 +142,7 @@
     }
     function ask(withBackup) {
       var sc = scope();
-      var msg = '<b>' + esc(active.name) + '</b>의 ' + LABEL[sc] + '을(를) 지웁니다. 지운 기록은 되돌릴 수 없습니다.' +
+      var msg = '<b>' + esc(active.name) + '</b>의 ' + esc(examName) + ' ' + LABEL[sc] + '을(를) 지웁니다. 지운 기록은 되돌릴 수 없습니다.' +
         (withBackup ? '<br>먼저 백업 파일을 저장한 뒤 초기화합니다.' : '<br><b class="danger-text">백업 없이</b> 초기화합니다.');
       var run = function () { if (withBackup) exportFor(store, [active.id], active.name + '_초기화전'); doReset(sc); };
       if (sc === 'all') {

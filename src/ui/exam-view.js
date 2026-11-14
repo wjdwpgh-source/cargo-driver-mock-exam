@@ -6,7 +6,37 @@
   'use strict';
   var CDME = root.CDME;
   var esc = CDME.util.escapeHtml, E = CDME.exam, N = CDME.notes, modal = CDME.modal;
-  var CIRCLED = ['①', '②', '③', '④'];
+  var CIRCLED = ['①', '②', '③', '④', '⑤'];
+
+  /* v2.0 L3: 문제 그림 (표지·일러스트) – 누르면 크게 보기 (FR-L08) */
+  // 그림 경로: 'license/images/DL-0001.svg'처럼 data/ 기준이면 앞에 data/를 붙임
+  function imgSrc(q) {
+    var p = q && q.image;
+    if (!p) return '';
+    return /^(https?:|data:|\/|images\/|data\/)/.test(p) ? p : 'data/' + p;
+  }
+  function imageHtml(q, label) {
+    if (!q || !q.image) return '';
+    var alt = (q.image_alt || '').trim() || ((label || '문제') + ' 그림');
+    return '<figure class="q-fig"><button type="button" class="q-img-btn" data-zoom="' + esc(imgSrc(q)) + '" data-alt="' + esc(alt) + '" aria-label="' + esc('그림: ' + alt + ' – 누르면 크게 보기') + '">' +
+      '<img class="q-img" src="' + esc(imgSrc(q)) + '" alt="" decoding="async">' +
+      '<span class="zoom-hint" aria-hidden="true">🔍 크게 보기</span></button></figure>';
+  }
+
+  /* v2.0 L2: 정답 1개·2개 공통 표시 도구 */
+  // 정답 번호 글자 "①, ④" – posOf(원래 번호) → 화면 위치(0부터)
+  function answerLabel(q, posOf) {
+    posOf = posOf || function (o) { return o - 1; };
+    return E.answerSet(q).map(posOf).sort(function (a, b) { return a - b; }).map(function (k) { return CIRCLED[k]; }).join(', ');
+  }
+  // 2답 문항 안내: "2개 선택" 배지 + 지금 고른 개수
+  function multiNoteHtml(q, picked, answered) {
+    if (!E.isMulti(q)) return '';
+    var need = E.needCount(q);
+    return '<p class="multi-note small"><span class="tag tag-multi">정답 ' + need + '개 선택</span> ' +
+      (answered ? '' : '<span id="multi-count" aria-live="polite">' + picked + ' / ' + need + ' 선택' +
+        (picked ? ' – 하나 더 고르면 채점합니다 (다시 누르면 선택 취소)' : ' – ' + need + '개를 모두 고르면 채점합니다') + '</span>') + '</p>';
+  }
   var ALERTS = [{ ms: 5 * 60000, text: '남은 시간 5분입니다.' }, { ms: 60000, text: '남은 시간 1분입니다. 시간이 끝나면 자동으로 종료됩니다.' }];
 
   function subjectName(bank, code) {
@@ -15,7 +45,8 @@
   }
 
   function subjectShort(code) {
-    return { LAW: '법규', CARGO: '화물취급요령', SAFE: '안전운행', SERVICE: '운송서비스' }[code] || code;
+    return { LAW: '법규', CARGO: '화물취급요령', SAFE: '안전운행', SERVICE: '운송서비스',
+      TEXT1: '문장형', TEXT2: '문장형(2답)', SIGN: '안전표지', ILLUST2: '일러스트(2답)', ILLUST1: '일러스트(상황)' }[code] || code;
   }
 
   function toast(text) {
@@ -90,10 +121,10 @@
     var elNext = document.getElementById('ex-next');
 
     function feedbackHtml(q, choice, hUsed) {
-      var ok = choice === q.answer;
+      var ok = E.isCorrect(q, choice);
       return '<div class="feedback ' + (ok ? 'is-correct' : 'is-wrong') + '" id="ex-feedback" tabindex="-1" role="status">' +
         '<p class="fb-title">' + (ok ? '✓ 정답입니다' : '✗ 오답입니다') +
-        (ok ? '' : ' <span class="fb-answer">정답은 ' + CIRCLED[q.answer - 1] + '번</span>') +
+        (ok ? '' : ' <span class="fb-answer">정답은 ' + answerLabel(q) + '번</span>') +
         (hUsed ? ' <span class="tag tag-hint">💡 힌트 사용</span>' : '') + '</p>' +
         '<p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
         (q.law_ref ? '<p class="fb-law small">관련 법령: ' + esc(q.law_ref) + '</p>' : '') +
@@ -110,8 +141,11 @@
       var answered = choice != null;
       var allDone = t.unanswered === 0;
       var hUsed = E.hintUsed(ip, i);
-      var h = E.hintFor(q);
-      var elim = !answered && hUsed && h.type === 'elim' ? h.remove : 0;
+      var pend = answered ? [] : E.pendingOf(ip, i);
+      var elim = answered ? 0 : E.elimOf(ip, i, q);
+      var h = E.hintFor(q, pend);
+      if (elim) h = { type: 'elim', remove: elim };
+      var ansSet = E.answerSet(q);
 
       elSubject.textContent = subjectShort(it.subject);
       elSubject.title = subjectName(bank, it.subject);
@@ -122,18 +156,23 @@
         '<p class="q-num q-num-row"><span>문 ' + (i + 1) + '.' + (q._status && q._status !== 'verified' ? ' <span class="tag tag-wait">검수 전 · ' + esc(q.id) + '</span>' : '') + '</span>' +
         bookmarkBtnHtml(CDME.study.isBookmarked((store.getProfileData(active.id) || {}).bookmarks, q.id, ctx.sampleMode()), q.id) + '</p>' +
         '<p class="q-text">' + esc(q.question) + '</p>' +
-        (q.image ? '<img class="q-img" src="' + esc(q.image) + '" alt="문제 ' + (i + 1) + ' 그림">' : '') +
+        multiNoteHtml(q, pend.length, answered) +
+        imageHtml(q, '문제 ' + (i + 1)) +
         '<div class="choices' + (answered ? ' locked' : '') + '" role="group" aria-label="보기">' +
         q.choices.map(function (txt, k) {
-          var n = k + 1, cls = 'choice', mark = '';
+          var n = k + 1, cls = 'choice', mark = '', pressed = '';
           if (answered) {
-            if (n === q.answer) { cls += ' correct'; mark = '<span class="choice-mark" aria-label="정답">✓</span>'; }
-            else if (n === choice) { cls += ' wrong'; mark = '<span class="choice-mark" aria-label="내가 고른 오답">✗</span>'; }
-            if (n === choice) cls += ' chosen';
+            if (ansSet.indexOf(n) >= 0) { cls += ' correct'; mark = '<span class="choice-mark" aria-label="정답">✓</span>'; }
+            else if (E.hasChoice(choice, n)) { cls += ' wrong'; mark = '<span class="choice-mark" aria-label="내가 고른 오답">✗</span>'; }
+            if (E.hasChoice(choice, n)) cls += ' chosen';
+          } else if (E.isMulti(q)) {
+            var on = pend.indexOf(n) >= 0;
+            if (on) { cls += ' picked'; mark = '<span class="choice-mark">선택됨</span>'; }
+            pressed = ' aria-pressed="' + on + '"';
           }
           var off = answered || n === elim;
           if (n === elim) { cls += ' eliminated'; mark = '<span class="choice-mark">힌트로 지움</span>'; }
-          return '<button type="button" class="' + cls + '" data-choice="' + n + '"' + (off ? ' disabled aria-disabled="true"' : '') + '>' +
+          return '<button type="button" class="' + cls + '" data-choice="' + n + '"' + pressed + (off ? ' disabled aria-disabled="true"' : '') + '>' +
             '<span class="choice-no" aria-hidden="true">' + CIRCLED[k] + '</span><span class="choice-text">' + esc(txt) + '</span>' + mark + '</button>';
         }).join('') + '</div>' +
         (answered ? '' : hintAreaHtml(h, hUsed, function (orig) { return orig - 1; }, 'ex')) +
@@ -166,16 +205,25 @@
 
     // 답을 고르면 바로 채점하고 답을 고정한다
     function showHint() {
-      if (!E.useHint(ip, ip.current)) return;
+      if (!E.useHint(ip, ip.current, bank.byId[ip.items[ip.current].qid])) return;
       persist();
       paint('hint');
     }
 
+    // 1답: 고르면 바로 채점. 2답: 첫 선택은 '선택됨', 두 번째에서 채점 (FR-L05)
     function choose(n) {
-      if (ip.answers[ip.current] != null) return;
-      var hq = bank.byId[ip.items[ip.current].qid];
-      if (E.hintUsed(ip, ip.current)) { var hh = E.hintFor(hq); if (hh.type === 'elim' && hh.remove === n) return; }
-      E.setAnswer(ip, ip.current, n, { lock: true });
+      var i = ip.current;
+      if (ip.answers[i] != null) return;
+      var hq = bank.byId[ip.items[i].qid];
+      if (!hq || n < 1 || n > hq.choices.length) return;
+      if (n === E.elimOf(ip, i, hq)) return;
+      if (E.isMulti(hq)) {
+        var r = E.togglePending(ip, i, n, E.needCount(hq));
+        if (!r.done) { persist(); paint(); var b = elCard.querySelector('[data-choice="' + n + '"]'); if (b) b.focus({ preventScroll: true }); return; }
+        E.setAnswer(ip, i, r.done, { lock: true });
+      } else {
+        E.setAnswer(ip, i, n, { lock: true });
+      }
       persist();
       paint(true);
     }
@@ -277,7 +325,7 @@
       if (document.querySelector('.modal-backdrop')) return;
       var tag = (e.target && e.target.tagName) || '';
       if (tag === 'INPUT' || tag === 'TEXTAREA' || e.altKey || e.ctrlKey || e.metaKey) return;
-      if (e.key >= '1' && e.key <= '4') { e.preventDefault(); choose(+e.key); }
+      if (e.key >= '1' && e.key <= '5') { e.preventDefault(); choose(+e.key); }
       else if (e.key === 'h' || e.key === 'H' || e.key === 'ㅗ') { e.preventDefault(); showHint(); }
       else if (e.key === 'ArrowRight' || (e.key === 'Enter' && ip.answers[ip.current] != null && tag !== 'BUTTON')) { e.preventDefault(); if (ip.current < total - 1) move(ip.current + 1); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); move(ip.current - 1); }
@@ -351,12 +399,14 @@
     var inNote = n && n.state === 'active';
     return '<li class="card rv-card" data-qid="' + esc(q.id) + '">' + head +
       '<p class="q-text">' + esc(q.question) + '</p>' +
-      (q.image ? '<img class="q-img" src="' + esc(q.image) + '" alt="문제 ' + (i + 1) + ' 그림">' : '') +
+      multiNoteHtml(q, 0, true) +
+      imageHtml(q, '문제 ' + (i + 1)) +
       '<div class="choices locked">' + q.choices.map(function (txt, k) {
         var no = k + 1, cls = 'choice', mark = '';
-        if (no === q.answer) { cls += ' correct'; mark = '<span class="choice-mark">✓ 정답</span>'; }
-        else if (no === a.choice) { cls += ' wrong'; mark = '<span class="choice-mark">✗ 내 답</span>'; }
-        if (no === a.choice && no === q.answer) mark = '<span class="choice-mark">✓ 정답 · 내 답</span>';
+        var right = E.answerSet(q).indexOf(no) >= 0, mine = E.hasChoice(a.choice, no);
+        if (right) { cls += ' correct'; mark = '<span class="choice-mark">✓ 정답</span>'; }
+        else if (mine) { cls += ' wrong'; mark = '<span class="choice-mark">✗ 내 답</span>'; }
+        if (mine && right) mark = '<span class="choice-mark">✓ 정답 · 내 답</span>';
         return '<div class="' + cls + '"><span class="choice-no" aria-hidden="true">' + CIRCLED[k] + '</span><span class="choice-text">' + esc(txt) + '</span>' + mark + '</div>';
       }).join('') + '</div>' +
       '<div class="feedback ' + (a.correct ? 'is-correct' : 'is-wrong') + '"><p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
@@ -364,7 +414,7 @@
       '<div class="rv-actions">' +
       bookmarkBtnHtml(CDME.study.isBookmarked(bm, q.id, sample), q.id) +
       (inNote ? '<span class="tag tag-note">📒 오답노트에 있음</span>'
-        : '<button type="button" class="btn btn-outline btn-sm" data-add-note="' + esc(q.id) + '" data-choice="' + (a.choice == null ? '' : a.choice) + '">오답노트에 담기</button>') +
+        : '<button type="button" class="btn btn-outline btn-sm" data-add-note="' + esc(q.id) + '" data-choice="' + (a.choice == null ? '' : E.choiceList(a.choice).join(',')) + '">오답노트에 담기</button>') +
       reportLinkHtml(bank, q) + '</div></li>';
   }
 
@@ -378,6 +428,7 @@
     if (ctx.ensureKind(ex)) return;
     if (!bank) { view.innerHTML = '<p class="muted">문제 데이터를 불러오는 중…</p>'; return; }
     var cfg = bank.config.exam;
+    var gl = cfg.group_label || '과목';
     var mins = Math.floor(ex.durationSec / 60), secs = ex.durationSec % 60;
 
     var wrong = ex.answers.filter(function (a) { return !a.correct && a.choice != null; }).length;
@@ -394,7 +445,7 @@
     var noteInfo = (wrong + skipped)
       ? '<section class="card note-info"><p>📒 틀린 문제 <b>' + wrong + '</b>개' + (skipped ? ', 안 푼 문제 <b>' + skipped + '</b>개' : '') + '가 <b>오답노트</b>에 등록되었습니다.' +
         (reg ? ' <span class="muted small">(새로 등록 ' + reg.added + ' · 다시 틀림 ' + reg.updated + ')</span>' : '') + '</p>' +
-        '<p class="muted small">오답노트 화면과 복습 재시험은 S5 단계에서 추가됩니다.</p></section>'
+        '<p class="small"><a href="#/notes">오답노트 · 복습 재시험으로 가기</a></p></section>'
       : '<section class="card note-info"><p>🎉 모든 문제를 맞혔습니다.</p></section>';
 
     function tab(key, label, count) {
@@ -410,11 +461,12 @@
       '<span class="result-score"><b>' + ex.score + '</b>점</span>' +
       '<span class="muted">정답 ' + ex.correct + ' / ' + ex.total + '문항 · 합격 기준 ' + cfg.pass_score + '점 · 소요 ' + mins + '분 ' + secs + '초</span>' +
       (ex.hintCount ? '<span class="muted small">💡 힌트 사용 ' + ex.hintCount + '문항 (점수에는 영향 없음)</span>' : '') +
+      (cfg.score_note ? '<span class="muted small">' + esc(cfg.score_note) + ' (실제 시험은 유형별 배점이 다를 수 있음)</span>' : '') +
       '<span class="muted small">' + esc(CDME.util.formatDate(ex.finishedAt)) + '</span>' +
       '</section>' +
       noteInfo +
-      '<section class="card"><h2>과목별 점수</h2><div class="table-wrap" tabindex="0" role="region" aria-label="표 (좌우로 밀어 볼 수 있음)"><table class="table">' +
-      '<thead><tr><th scope="col">과목</th><th scope="col" class="num">정답</th><th scope="col" class="num">점수</th><th scope="col"><span class="sr-only">막대</span></th></tr></thead>' +
+      '<section class="card"><h2>' + esc(gl) + '별 점수</h2><div class="table-wrap" tabindex="0" role="region" aria-label="표 (좌우로 밀어 볼 수 있음)"><table class="table">' +
+      '<thead><tr><th scope="col">' + esc(gl) + '</th><th scope="col" class="num">정답</th><th scope="col" class="num">점수</th><th scope="col"><span class="sr-only">막대</span></th></tr></thead>' +
       '<tbody>' + rows + '</tbody></table></div></section>' +
       '<section aria-labelledby="rv-title"><h2 id="rv-title" class="section-title">문제별 다시보기</h2>' +
       '<div class="tabs" role="group" aria-label="보기 필터">' +
@@ -454,7 +506,8 @@
       var ch = b.getAttribute('data-choice');
       var res;
       store.updateProfileData(active.id, function (d) {
-        res = N.addManual(d.wrongNotes, q, { sample: !!ex.sample, choice: ch === '' ? null : +ch });
+        var parsed = ch === '' ? null : ch.indexOf(',') >= 0 ? ch.split(',').map(Number) : +ch;
+        res = N.addManual(d.wrongNotes, q, { sample: !!ex.sample, choice: parsed });
       });
       paintList();
       toast(res === 'exists' ? '이미 오답노트에 있는 문제입니다.' : '오답노트에 담았습니다.');
@@ -462,7 +515,18 @@
   }
 
   // 다른 화면에서 함께 쓰는 도구
-  CDME.ui = { subjectShort: subjectShort, toast: toast, reportLinkHtml: reportLinkHtml, hintAreaHtml: hintAreaHtml, bookmarkBtnHtml: bookmarkBtnHtml };
+  function examName(kind) { var b = CDME.app && CDME.app.getBank && CDME.app.getBank(); return CDME.questions.examName(kind, b && b.config); }
+  function examShort(kind) { var b = CDME.app && CDME.app.getBank && CDME.app.getBank(); return CDME.questions.examShort(kind, b && b.config); }
+
+  // 과목/유형 이름 (화물 '과목', 대형 '유형')
+  function groupLabel() { var b = CDME.app && CDME.app.getBank && CDME.app.getBank(); return (b && b.config.exam.group_label) || '과목'; }
+  // 받침 따라 을/를·이/가 (과목→을, 유형→을: 둘 다 받침 있음, 다른 이름 대비)
+  function josa(word, a, b) { var c = (word || '').charCodeAt(word.length - 1); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? a : b; }
+
+  function groupCount() { var b = CDME.app && CDME.app.getBank && CDME.app.getBank(); return b ? b.config.exam.subjects.length : 4; }
+  function passScore() { var b = CDME.app && CDME.app.getBank && CDME.app.getBank(); return b ? b.config.exam.pass_score : 60; }
+
+  CDME.ui = { imgSrc: imgSrc, imageHtml: imageHtml, groupCount: groupCount, passScore: passScore, groupLabel: groupLabel, josa: josa, CIRCLED: CIRCLED, answerLabel: answerLabel, multiNoteHtml: multiNoteHtml, subjectShort: subjectShort, examName: examName, examShort: examShort, toast: toast, reportLinkHtml: reportLinkHtml, hintAreaHtml: hintAreaHtml, bookmarkBtnHtml: bookmarkBtnHtml };
 
   CDME.views = CDME.views || {};
   CDME.views.exam = renderExam;

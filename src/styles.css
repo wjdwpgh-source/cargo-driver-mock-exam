@@ -505,3 +505,52 @@ body.in-exam .container { padding-bottom: 6.5rem; }
 #st-diff .seg-item span { flex-direction: column; line-height: 1.2; padding: 4px 2px; text-align: center; }
 #st-diff .seg-item b { margin-left: 0; }
 .seg-item span { min-width: 0; overflow-wrap: anywhere; }
+
+/* ===== v2.0 L1: 시험 종류 (화물 파랑 / 대형 초록) ===== */
+.exam-chip {
+  flex: none; display: inline-block; text-decoration: none; font-weight: 700; font-size: .8rem;
+  border-radius: 999px; padding: 2px 10px; line-height: 1.5; vertical-align: middle;
+  background: var(--primary-soft); color: var(--primary);
+}
+.exam-chip.exam-license { background: var(--ok-soft); color: var(--ok); }
+.topbar #exam-chip { margin-right: auto; margin-left: 2px; }
+.topbar #exam-chip:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.exam-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: -4px 0 12px; }
+.exam-bar .btn { margin-left: auto; }
+.exam-pick { border: 0; padding: 0; margin: 0 0 12px; min-width: 0; }
+.exam-pick legend { padding: 0; }
+.exam-card.is-current { border-color: var(--primary); }
+.exam-card h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+.brand-short { display: none; }
+@media (max-width: 400px) { .brand-full { display: none; } .brand-short { display: inline; } }
+
+/* ===== v2.0 L2: 정답 2개 문항 ('선택됨'), 5지 ===== */
+.choice.picked { background: var(--primary-soft); border-color: var(--primary); border-width: 3px; font-weight: 700; }
+.choice.picked .choice-no, .choice.picked .choice-mark { color: var(--primary); }
+.choice.picked .choice-mark { font-size: .8rem; }
+.tag-multi { background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+.multi-note { margin: -4px 0 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+
+/* ===== v2.0 L3: 문제 그림·크게 보기 ===== */
+.q-fig { margin: 0 0 16px; }
+.q-img-btn {
+  position: relative; display: block; width: 100%; padding: 8px; margin: 0; cursor: zoom-in;
+  background: #ffffff; border: 1.5px solid var(--line); border-radius: 10px;
+}
+.q-img-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.q-img-btn .q-img { margin: 0 auto; max-height: 340px; width: auto; max-width: 100%; }
+.zoom-hint {
+  position: absolute; right: 8px; bottom: 8px; font-size: .78rem; font-weight: 700;
+  background: rgba(17, 24, 39, .78); color: #fff; border-radius: 999px; padding: 2px 10px;
+}
+.zoom-backdrop { padding: 0; align-items: stretch; justify-content: stretch; }
+.zoom-box {
+  display: flex; flex-direction: column; width: 100%; height: 100%; max-width: none; max-height: none;
+  background: var(--surface); border-radius: 0;
+}
+.zoom-top { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.zoom-cap { flex: 1; margin: 0; font-size: .95rem; }
+.zoom-close { flex: none; }
+.zoom-img-wrap { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 8px; }
+.zoom-img { width: 100%; height: 100%; max-width: 1100px; object-fit: contain; }

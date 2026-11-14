@@ -11,6 +11,7 @@
   var CDME = (root.CDME = root.CDME || {});
   var util = CDME.util || (typeof require === 'function' ? require('./util.js') : null);
   var shuffle = (CDME.exam || (typeof require === 'function' ? require('./exam.js') : null)).shuffle;
+  function EXM() { return CDME.exam || require('./exam.js'); }
 
   var DIFF_NAMES = { 1: '쉬움', 2: '보통', 3: '어려움' };
 
@@ -87,7 +88,7 @@
     if (!ids.length) { var e = new Error('조건에 맞는 문제가 없습니다'); e.code = 'EMPTY'; throw e; }
     var items = ids.map(function (id) {
       var q = bank.byId[id];
-      return { qid: id, qver: q.version || 1, subject: q.subject, perm: opts.shuffleChoices ? shuffle([1, 2, 3, 4], rng) : [1, 2, 3, 4] };
+      return { qid: id, qver: q.version || 1, subject: q.subject, perm: EXM().permFor(q, rng, !!opts.shuffleChoices) };
     });
     return {
       id: util.uuid(), type: 'study', sample: !!opts.sample, filter: f,
@@ -105,7 +106,8 @@
     if (st.answers[index] != null) return null;
     now = now || util.nowISO();
     var it = st.items[index], q = bank.byId[it.qid];
-    var correct = original === q.answer;
+    var correct = EXM().isCorrect(q, original);
+    if (st.pending) st.pending[index] = null;
     var res = { correct: correct, noted: false };
     st.answers[index] = original;
     if (!correct && notes) {

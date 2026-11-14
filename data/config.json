@@ -1,16 +1,35 @@
 {
-  "exam": {
-    "minutes": 80,
-    "pass_score": 60,
-    "subjects": [
-      { "code": "LAW", "name": "교통 및 화물자동차 운수사업 관련 법규", "count": 25 },
-      { "code": "CARGO", "name": "화물취급요령", "count": 15 },
-      { "code": "SAFE", "name": "안전운행", "count": 25 },
-      { "code": "SERVICE", "name": "운송서비스", "count": 15 }
-    ]
+  "site_name": "면허문제의 모든것",
+  "default_exam": "cargo",
+  "exams": {
+    "cargo": {
+      "name": "화물운송종사자격", "short": "화물",
+      "minutes": 80, "pass_score": 60,
+      "group_label": "과목", "folder": "questions/", "choices": "4지선다",
+      "data_date": "2026-10-21",
+      "groups": [
+        { "code": "LAW", "name": "교통 및 화물자동차 운수사업 관련 법규", "count": 25 },
+        { "code": "CARGO", "name": "화물취급요령", "count": 15 },
+        { "code": "SAFE", "name": "안전운행", "count": 25 },
+        { "code": "SERVICE", "name": "운송서비스", "count": 15 }
+      ]
+    },
+    "license": {
+      "name": "대형운전면허(1종) 학과", "short": "대형",
+      "minutes": 40, "pass_score": 70,
+      "group_label": "유형", "folder": "license/questions/", "id_prefix": "DL", "choices": "4지·5지선다(1답·2답)",
+      "score_note": "학습용 점수: 전 문항 2.5점",
+      "data_date": "2026-11-14",
+      "groups": [
+        { "code": "TEXT1", "name": "문장형", "count": 17, "choices": 4, "answers": 1 },
+        { "code": "TEXT2", "name": "문장형(2답)", "count": 4, "choices": 4, "answers": 2 },
+        { "code": "SIGN", "name": "안전표지형", "count": 5, "choices": 4, "answers": 1 },
+        { "code": "ILLUST2", "name": "일러스트형(2답)", "count": 13, "choices": 5, "answers": 2 },
+        { "code": "ILLUST1", "name": "일러스트형(상황)", "count": 1, "choices": 4, "answers": 1 }
+      ]
+    }
   },
   "review": { "mastery_streak": 2, "recent_days": 7, "frequent_count": 2 },
-  "data_date": "2026-10-21",
   "dev_modes": false,
   "issue_url": "https://github.com/wjdwpgh-source/cargo-driver-mock-exam/issues/new"
 }

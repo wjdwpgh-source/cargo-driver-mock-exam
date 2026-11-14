@@ -3,7 +3,7 @@ chcp 65001 >nul
 cd /d "%~dp0"
 set PYTHONIOENCODING=utf-8
 echo ==========================================
-echo  문제 변환: data\raw\문제_*.xlsx  →  data\questions\*.json
+echo  문제 변환: 화물 data\raw\문제_*.xlsx + 대형 data\license\raw\문제_DL.xlsx  →  JSON
 echo ==========================================
 set PY=
 where py >nul 2>nul && set PY=py

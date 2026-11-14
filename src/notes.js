@@ -85,9 +85,13 @@
   function issueUrl(config, q, extra) {
     var base = config && config.issue_url;
     if (!base || /[<>]/.test(base)) return null;
-    var title = '[문제 오류] ' + q.id;
+    // v2.0: 시험 종류 표시 (FR-L15) – 대형면허는 제목에 [대형]
+    var ex = config.exams && config.kind && config.exams[config.kind];
+    var tag = config.kind && config.kind !== 'cargo' && ex ? '[' + (ex.short || ex.name) + '] ' : '';
+    var title = '[문제 오류] ' + tag + q.id;
     var body = [
       '## 문제 정보',
+      ex ? '- 시험: ' + ex.name : '',
       '- 문제 ID: ' + q.id,
       '- 문제 버전: ' + (q.version || 1),
       '- 지문: ' + q.question,

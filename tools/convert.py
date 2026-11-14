@@ -4,6 +4,7 @@
  2) id가 빈 행에 새 번호 부여 (예: LAW-0041) → 엑셀에도 기록
  3) 이전 JSON과 비교해 지문·보기·정답·해설이 바뀐 문제는 version +1, updated_at 갱신
  4) data/questions/<과목>.json 저장, 과목별 현황 출력
+ 5) (v2.0) 대형운전면허 엑셀(data/license/raw/문제_DL.xlsx)도 변환 – tools/convert_license.py
 """
 import datetime
 import json
@@ -85,6 +86,11 @@ def main():
         changed_total += added + bumped + removed
         print("%-8s %d문항 저장 (새 문제 %d · 수정 %d(version+1) · 엑셀에서 빠져 폐기 %d · 새 번호 부여 %d)"
               % (code, len(out), added, bumped, removed, new_ids))
+
+    # v2.0: 대형운전면허 엑셀도 함께 변환 (data/license/raw/문제_DL.xlsx가 있을 때)
+    import convert_license
+    if convert_license.main() != 0:
+        return 1
 
     print()
     validate.run("json")

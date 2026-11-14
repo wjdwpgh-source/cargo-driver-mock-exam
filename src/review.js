@@ -7,7 +7,8 @@
   'use strict';
   var CDME = (root.CDME = root.CDME || {});
   var util = CDME.util || (typeof require === 'function' ? require('./util.js') : null);
-  var shuffle = (CDME.exam || (typeof require === 'function' ? require('./exam.js') : null)).shuffle;
+  var EX = CDME.exam || (typeof require === 'function' ? require('./exam.js') : null);
+  var shuffle = EX.shuffle;
 
   var DEFAULTS = { mastery_streak: 2, recent_days: 7, frequent_count: 2 };
   function opt(cfg) {
@@ -68,7 +69,7 @@
     if (!ids.length) { var e = new Error('복습할 문제가 없습니다'); e.code = 'EMPTY'; throw e; }
     var items = ids.map(function (id) {
       var q = bank.byId[id];
-      return { qid: id, qver: q.version || 1, subject: q.subject, perm: shuffle([1, 2, 3, 4], rng) };
+      return { qid: id, qver: q.version || 1, subject: q.subject, perm: EX.permFor(q, rng, true) };   // v2.0: 5지·일러스트 고정 지원
     });
     return {
       id: util.uuid(),
@@ -86,19 +87,20 @@
     };
   }
 
-  // 화면에 k번째(0~3)로 보인 보기 → 원래 보기 번호
+  // 화면에 k번째(0부터)로 보인 보기 → 원래 보기 번호
   function originalChoice(item, displayIndex) { return item.perm[displayIndex]; }
-  // 원래 번호 → 화면 위치(0~3)
+  // 원래 번호 → 화면 위치(0부터)
   function displayIndexOf(item, original) { return item.perm.indexOf(original); }
 
-  // 한 문항 답하기 + 오답노트 즉시 반영. 이미 답했으면 null
+  // 한 문항 답하기 + 오답노트 즉시 반영. 이미 답했으면 null. original: 원래 번호(2답은 배열)
   function answer(rv, notes, bank, index, original, now) {
     if (rv.answers[index] != null) return null;
     now = now || util.nowISO();
     var o = opt(bank.config);
     var it = rv.items[index];
     var q = bank.byId[it.qid];
-    var correct = original === q.answer;
+    var correct = EX.isCorrect(q, original);
+    if (rv.pending) rv.pending[index] = null;
     var n = notes[it.qid];
     var res = { correct: correct, mastered: false, reactivated: false, streak: 0 };
     rv.answers[index] = original;

@@ -9,7 +9,8 @@
   var CDME = root.CDME;
   var esc = CDME.util.escapeHtml, fmt = CDME.util.formatDate, RV = CDME.review, modal = CDME.modal;
   var UI = CDME.ui;
-  var CIRCLED = ['①', '②', '③', '④'];
+  var CIRCLED = ['①', '②', '③', '④', '⑤'];
+  var EX = CDME.exam;
 
   function short(code) { return UI.subjectShort(code); }
   function profileData(ctx, active) { return ctx.store.getProfileData(active.id); }
@@ -67,7 +68,7 @@
       '<button type="button" class="tab' + (noteState.tab === 'active' ? ' on' : '') + '" data-tab="active" aria-pressed="' + (noteState.tab === 'active') + '">복습 중 <b>' + sum.active + '</b></button>' +
       '<button type="button" class="tab' + (noteState.tab === 'mastered' ? ' on' : '') + '" data-tab="mastered" aria-pressed="' + (noteState.tab === 'mastered') + '">복습 완료 <b>' + sum.mastered + '</b></button>' +
       '</div>' +
-      '<div class="filter-row"><div class="chips" role="group" aria-label="과목">' + chips + '</div>' +
+      '<div class="filter-row"><div class="chips" role="group" aria-label="' + UI.groupLabel() + '">' + chips + '</div>' +
       '<label class="sort"><span class="sr-only">정렬</span><select id="nt-sort" class="input input-sm">' +
       '<option value="recent"' + (noteState.sort === 'recent' ? ' selected' : '') + '>최근 틀린 순</option>' +
       '<option value="count"' + (noteState.sort === 'count' ? ' selected' : '') + '>많이 틀린 순</option></select></label></div>' +
@@ -93,10 +94,10 @@
     }
     function bodyHtml(id) {
       var n = profileData(ctx, active).wrongNotes[id], q = bank.byId[id];
-      return '<div class="choices locked">' + q.choices.map(function (txt, k) {
+      return UI.imageHtml(q, '문제') + UI.multiNoteHtml(q, 0, true) + '<div class="choices locked">' + q.choices.map(function (txt, k) {
         var no = k + 1, cls = 'choice', mark = '';
-        if (no === q.answer) { cls += ' correct'; mark = '<span class="choice-mark">✓ 정답</span>'; }
-        else if (no === n.last_choice) { cls += ' wrong'; mark = '<span class="choice-mark">✗ 최근 내 답</span>'; }
+        if (EX.answerSet(q).indexOf(no) >= 0) { cls += ' correct'; mark = '<span class="choice-mark">✓ 정답</span>'; }
+        else if (EX.hasChoice(n.last_choice, no)) { cls += ' wrong'; mark = '<span class="choice-mark">✗ 최근 내 답</span>'; }
         return '<div class="' + cls + '"><span class="choice-no" aria-hidden="true">' + CIRCLED[k] + '</span><span class="choice-text">' + esc(txt) + '</span>' + mark + '</div>';
       }).join('') + '</div>' +
         '<div class="feedback is-correct"><p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +
@@ -172,7 +173,7 @@
       opt('all', '전체 오답', '복습 중인 모든 문제') +
       opt('frequent', '많이 틀린 문제', (cfgR.frequent_count || 2) + '회 이상 틀린 문제') +
       opt('recent', '최근 틀린 문제', '최근 ' + (cfgR.recent_days || 7) + '일') +
-      '</div><h3 class="opt-sub">과목별</h3><div class="opts opts-2">' + subjOpts + '</div>' +
+      '</div><h3 class="opt-sub">' + UI.groupLabel() + '별</h3><div class="opts opts-2">' + subjOpts + '</div>' +
       '<h3 class="opt-sub">다시 풀기</h3><div class="opts">' + opt('mastered', '복습 완료 문제', '틀리면 다시 복습 목록으로') + '</div></section>' +
       '<section class="card"><h2>문항 수</h2><div class="seg" role="radiogroup">' +
       [10, 20, 40, 'all'].map(function (v) {
@@ -273,8 +274,12 @@
         elCard.innerHTML = '<p class="muted">이 문제는 수정·폐기되어 건너뜁니다.</p>';
       } else {
         var ans = rv.answers[i], res = rv.results[i];
-        var E = CDME.exam, hUsed = E.hintUsed(rv, i), h = E.hintFor(q);
-        var elim = ans == null && hUsed && h.type === 'elim' ? h.remove : 0;
+        var E = CDME.exam, hUsed = E.hintUsed(rv, i);
+        var pend = ans == null ? E.pendingOf(rv, i) : [];
+        var elim = ans == null ? E.elimOf(rv, i, q) : 0;
+        var h = elim ? { type: 'elim', remove: elim } : E.hintFor(q, pend);
+        var ansSet = E.answerSet(q), multi = E.isMulti(q);
+        var posOf = function (orig) { return RV.displayIndexOf(it, orig); };
         var pd = profileData(ctx, active);
         var n = K.showWrongCount ? pd.wrongNotes[it.qid] : null;
         elCard.innerHTML =
@@ -282,21 +287,26 @@
           (K.showDifficulty && q.difficulty ? '<span class="tag tag-skip">' + esc(CDME.study.DIFF_NAMES[q.difficulty] || '') + '</span>' : '') + '</span>' +
           UI.bookmarkBtnHtml(CDME.study.isBookmarked(pd.bookmarks, q.id, ctx.sampleMode()), q.id) + '</p>' +
           '<p class="q-text">' + esc(q.question) + '</p>' +
-          (q.image ? '<img class="q-img" src="' + esc(q.image) + '" alt="문제 그림">' : '') +
+          UI.multiNoteHtml(q, pend.length, ans != null) +
+          UI.imageHtml(q, '문제 ' + (i + 1)) +
           '<div class="choices' + (ans != null ? ' locked' : '') + '" role="group" aria-label="보기">' +
           it.perm.map(function (orig, k) {
-            var cls = 'choice', mark = '';
+            var cls = 'choice', mark = '', pressed = '';
             if (ans != null) {
-              if (orig === q.answer) { cls += ' correct'; mark = '<span class="choice-mark">✓</span>'; }
-              else if (orig === ans) { cls += ' wrong'; mark = '<span class="choice-mark">✗</span>'; }
+              if (ansSet.indexOf(orig) >= 0) { cls += ' correct'; mark = '<span class="choice-mark">✓</span>'; }
+              else if (E.hasChoice(ans, orig)) { cls += ' wrong'; mark = '<span class="choice-mark">✗</span>'; }
+            } else if (multi) {
+              var on = pend.indexOf(orig) >= 0;
+              if (on) { cls += ' picked'; mark = '<span class="choice-mark">선택됨</span>'; }
+              pressed = ' aria-pressed="' + on + '"';
             }
             if (orig === elim) { cls += ' eliminated'; mark = '<span class="choice-mark">힌트로 지움</span>'; }
-            return '<button type="button" class="' + cls + '" data-pos="' + k + '"' + (ans != null || orig === elim ? ' disabled aria-disabled="true"' : '') + '>' +
+            return '<button type="button" class="' + cls + '" data-pos="' + k + '"' + pressed + (ans != null || orig === elim ? ' disabled aria-disabled="true"' : '') + '>' +
               '<span class="choice-no" aria-hidden="true">' + CIRCLED[k] + '</span><span class="choice-text">' + esc(q.choices[orig - 1]) + '</span>' + mark + '</button>';
           }).join('') + '</div>' +
-          (ans == null ? UI.hintAreaHtml(h, hUsed, function (orig) { return RV.displayIndexOf(it, orig); }, 'rp') : '') +
+          (ans == null ? UI.hintAreaHtml(h, hUsed, posOf, 'rp') : '') +
           (ans != null ? '<div class="feedback ' + (res.correct ? 'is-correct' : 'is-wrong') + '" id="rp-fb" tabindex="-1" role="status">' +
-            '<p class="fb-title">' + (res.correct ? '✓ 정답입니다' : '✗ 오답입니다 <span class="fb-answer">정답은 ' + CIRCLED[RV.displayIndexOf(it, q.answer)] + '번</span>') +
+            '<p class="fb-title">' + (res.correct ? '✓ 정답입니다' : '✗ 오답입니다 <span class="fb-answer">정답은 ' + UI.answerLabel(q, posOf) + '번</span>') +
             (hUsed ? ' <span class="tag tag-hint">💡 힌트 사용</span>' : '') + '</p>' +
             (res.mastered ? '<p class="mastered-msg">🎓 연속 2번 맞혀 <b>복습 완료</b>로 옮겼습니다!</p>'
               : res.correct && res.streak ? '<p class="small">연속 정답 ' + res.streak + '/2 – 한 번 더 맞히면 복습 완료</p>'
@@ -321,20 +331,28 @@
     function showHint() {
       var q = bank.byId[rv.items[rv.current].qid];
       if (!q || q.status === 'deprecated') return;
-      if (!CDME.exam.useHint(rv, rv.current)) return;
+      if (!CDME.exam.useHint(rv, rv.current, q)) return;
       persist();
       paint('hint');
     }
+    // 1답: 고르면 바로 채점. 2답: 첫 선택은 '선택됨', 두 번째에서 채점 (FR-L05)
     function choose(pos) {
       var i = rv.current;
       if (rv.answers[i] != null) return;
-      if (CDME.exam.hintUsed(rv, i)) {
-        var hh = CDME.exam.hintFor(bank.byId[rv.items[i].qid]);
-        if (hh && hh.type === 'elim' && RV.originalChoice(rv.items[i], pos) === hh.remove) return;
+      var q = bank.byId[rv.items[i].qid];
+      if (!q || q.status === 'deprecated') return;
+      if (pos < 0 || pos >= rv.items[i].perm.length) return;
+      var orig = RV.originalChoice(rv.items[i], pos);
+      if (orig === EX.elimOf(rv, i, q)) return;
+      var pick = orig;
+      if (EX.isMulti(q)) {
+        var r = EX.togglePending(rv, i, orig, EX.needCount(q));
+        if (!r.done) { persist(); paint(); var pb = elCard.querySelector('[data-pos="' + pos + '"]'); if (pb) pb.focus({ preventScroll: true }); return; }
+        pick = r.done;
       }
       var res;
       store.updateProfileData(active.id, function (dd) {
-        res = K.answer(rv, dd, bank, i, RV.originalChoice(rv.items[i], pos));
+        res = K.answer(rv, dd, bank, i, pick);
         dd[K.key] = rv;
       });
       if (res && res.mastered) UI.toast('🎓 복습 완료!');
@@ -358,7 +376,7 @@
     function onKey(e) {
       if (document.querySelector('.modal-backdrop')) return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
-      if (e.key >= '1' && e.key <= '4') { e.preventDefault(); choose(+e.key - 1); }
+      if (e.key >= '1' && e.key <= '5') { e.preventDefault(); choose(+e.key - 1); }
       else if (e.key === 'h' || e.key === 'H' || e.key === 'ㅗ') { e.preventDefault(); showHint(); }
       else if (e.key === 'ArrowRight') { e.preventDefault(); if (rv.current < total - 1) move(rv.current + 1); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); move(rv.current - 1); }

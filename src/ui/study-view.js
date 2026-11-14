@@ -9,7 +9,7 @@
   var CDME = root.CDME;
   var esc = CDME.util.escapeHtml, fmt = CDME.util.formatDate, S = CDME.study, modal = CDME.modal;
   var UI = CDME.ui;
-  var CIRCLED = ['①', '②', '③', '④'];
+  var CIRCLED = ['①', '②', '③', '④', '⑤'];
   function short(code) { return UI.subjectShort(code); }
 
   function needBank(ctx) {
@@ -22,7 +22,7 @@
   function filterLabel(f) {
     if (!f) return '집중 학습';
     var parts = [];
-    parts.push(f.subjects && f.subjects.length && f.subjects.length < 4 ? f.subjects.map(short).join('·') : '전체 과목');
+    parts.push(f.subjects && f.subjects.length && f.subjects.length < UI.groupCount() ? f.subjects.map(short).join('·') : '전체 ' + UI.groupLabel());
     if (f.difficulty) parts.push(S.DIFF_NAMES[f.difficulty]);
     if (f.source === 'bookmark') parts.push('북마크');
     return parts.join(' · ');
@@ -53,7 +53,7 @@
 
     var w = S.weakness(d.exams, sample, bank.config, 5);
     var recommend = w.weak.length
-      ? '<p class="small">📊 최근 ' + w.count + '회 실전에서 합격선 아래인 과목: ' + w.weak.map(function (s) {
+      ? '<p class="small">📊 최근 ' + w.count + '회 실전에서 합격선 아래인 ' + UI.groupLabel() + ': ' + w.weak.map(function (s) {
         return '<button type="button" class="link-btn" data-pick="' + s.code + '">' + esc(short(s.code)) + ' ' + s.rate + '%</button>';
       }).join(', ') + '</p>' : '';
 
@@ -61,9 +61,9 @@
       '<p><a href="#/home" class="back">← 대시보드</a></p>' +
       '<h1 class="page-title">집중 학습' + (sample ? ' <span class="tag tag-wait">샘플</span>' : '') + '</h1>' +
       '<form id="st-form">' +
-      '<section class="card"><h2>과목</h2>' + recommend +
-      '<div class="chips" role="group" aria-label="과목 (여러 개 선택 가능)" id="st-subj"></div>' +
-      '<p class="muted small">여러 과목을 함께 고를 수 있습니다. 아무것도 고르지 않으면 전체 과목입니다.</p></section>' +
+      '<section class="card"><h2>' + UI.groupLabel() + '</h2>' + recommend +
+      '<div class="chips" role="group" aria-label="' + UI.groupLabel() + ' (여러 개 선택 가능)" id="st-subj"></div>' +
+      '<p class="muted small">여러 ' + UI.groupLabel() + '을 함께 고를 수 있습니다. 아무것도 고르지 않으면 전체 ' + UI.groupLabel() + '입니다.</p></section>' +
       '<section class="card"><h2>난이도</h2><div class="seg" role="radiogroup" aria-label="난이도" id="st-diff"></div></section>' +
       '<section class="card"><h2>문제 범위</h2><div class="opts" id="st-src"></div></section>' +
       '<section class="card"><h2>문항 수</h2><div class="seg" role="radiogroup" aria-label="문항 수">' +
@@ -133,7 +133,7 @@
       try {
         st = S.buildStudy(bank, { filter: setup, count: setup.count, sample: sample, bookmarks: pdata(ctx, active).bookmarks, shuffleChoices: setup.shuffle });
       } catch (err) {
-        modal.confirm({ title: '문제가 없습니다', message: '조건에 맞는 문제가 없습니다. 과목·난이도·범위를 바꿔 보세요.', okText: '확인', cancelText: '닫기' });
+        modal.confirm({ title: '문제가 없습니다', message: '조건에 맞는 문제가 없습니다. ' + UI.groupLabel() + '·난이도·범위를 바꿔 보세요.', okText: '확인', cancelText: '닫기' });
         return;
       }
       if (ctx.devKind()) st.kind = ctx.devKind();
@@ -191,11 +191,11 @@
     }).join('');
     view.innerHTML = ctx.noticeHtml() +
       '<h1 class="page-title">학습 결과</h1>' +
-      '<section class="card result-hero ' + (rate >= 60 ? 'pass' : 'fail') + '"><span class="result-badge">' + esc(filterLabel(s.filter)) + '</span>' +
+      '<section class="card result-hero ' + (rate >= UI.passScore() ? 'pass' : 'fail') + '"><span class="result-badge">' + esc(filterLabel(s.filter)) + '</span>' +
       '<span class="result-score"><b>' + s.correct + '</b> / ' + s.answered + '</span>' +
       '<span class="muted">정답 수 · 정답률 ' + rate + '%' + (s.quit && s.answered < s.total ? ' · 전체 ' + s.total + '문항 중 ' + s.answered + '문항 풀이' : '') + '</span>' +
       (s.hintCount ? '<span class="muted small">💡 힌트 사용 ' + s.hintCount + '문항</span>' : '') + '</section>' +
-      (rows ? '<section class="card"><h2>과목별</h2><table class="table"><thead><tr><th scope="col">과목</th><th scope="col" class="num">정답</th><th scope="col" class="num">정답률</th></tr></thead><tbody>' + rows + '</tbody></table></section>' : '') +
+      (rows ? '<section class="card"><h2>' + UI.groupLabel() + '별</h2><table class="table"><thead><tr><th scope="col">' + UI.groupLabel() + '</th><th scope="col" class="num">정답</th><th scope="col" class="num">정답률</th></tr></thead><tbody>' + rows + '</tbody></table></section>' : '') +
       (wrong ? '<section class="card"><h2>틀린 문제 <b>' + s.wrongIds.length + '</b></h2><p class="muted small">오답노트에 담겼습니다.</p><ul class="q-mini">' + wrong + '</ul></section>' : '') +
       '<section class="card"><p class="muted small">학습 결과는 실전 점수·합격 통계에 포함되지 않습니다.</p></section>' +
       '<section class="card actions"><a class="btn btn-primary" href="#/study">한 번 더 학습</a>' +
@@ -225,7 +225,7 @@
       '<section class="card actions">' +
       '<a class="btn btn-primary btn-lg' + (verifiedCount ? '' : ' disabled') + '" href="#/study?src=bookmark"' + (verifiedCount ? '' : ' aria-disabled="true" tabindex="-1"') + '>북마크 문제 풀기</a>' +
       '<p class="muted small">시험·복습·학습 화면에서 ☆ 북마크를 누르면 여기에 모입니다. 오답노트와 달리 맞힌 문제도 담아 둘 수 있습니다.</p></section>' +
-      '<div class="filter-row"><div class="chips" role="group" aria-label="과목">' + chips + '</div></div>' +
+      '<div class="filter-row"><div class="chips" role="group" aria-label="' + UI.groupLabel() + '">' + chips + '</div></div>' +
       '<ul class="note-list" id="bm-list">' + (rows.length ? rows.map(function (r) {
         var q = r.q;
         return '<li class="card note-item" data-id="' + esc(q.id) + '">' +
@@ -245,8 +245,8 @@
       var body = item.querySelector('.note-body');
       var open = body.hidden;
       if (open) {
-        body.innerHTML = '<div class="choices locked">' + q.choices.map(function (txt, k) {
-          var right = k + 1 === q.answer;
+        body.innerHTML = UI.imageHtml(q, '문제') + UI.multiNoteHtml(q, 0, true) + '<div class="choices locked">' + q.choices.map(function (txt, k) {
+          var right = CDME.exam.answerSet(q).indexOf(k + 1) >= 0;
           return '<div class="choice' + (right ? ' correct' : '') + '"><span class="choice-no" aria-hidden="true">' + CIRCLED[k] + '</span><span class="choice-text">' + esc(txt) + '</span>' + (right ? '<span class="choice-mark">✓ 정답</span>' : '') + '</div>';
         }).join('') + '</div>' +
           '<div class="feedback is-correct"><p class="fb-label">해설</p><p class="fb-text">' + esc(q.explanation) + '</p>' +

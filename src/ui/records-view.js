@@ -5,11 +5,11 @@
 (function (root) {
   'use strict';
   var CDME = root.CDME;
-  var esc = CDME.util.escapeHtml, fmt = CDME.util.formatDate;
+  var esc = CDME.util.escapeHtml, fmt = CDME.util.formatDate, UI = CDME.ui;
   var SVGNS = 'http://www.w3.org/2000/svg';
 
   function subjectShort(code) {
-    return { LAW: '법규', CARGO: '화물취급요령', SAFE: '안전운행', SERVICE: '운송서비스' }[code] || code;
+    return CDME.ui.subjectShort(code);
   }
 
   function stat(label, value, sub) {
@@ -161,8 +161,9 @@
         '<a class="btn btn-sm ' + (s.weak ? 'btn-primary' : 'btn-ghost') + '" href="#/study?subject=' + encodeURIComponent(s.code) + '">집중 학습</a></li>';
     }).join('');
     var weakSummary = w.weak.length
-      ? '가장 부족한 과목은 <b>' + esc(subjectShort(w.weak[0].code)) + '</b>입니다. 이 과목부터 집중 학습해 보세요.'
-      : '모든 과목이 합격선 이상입니다. 가장 낮은 <b>' + esc(subjectShort(w.weakest.code)) + '</b>를 조금 더 다져 두세요.';
+      ? '가장 부족한 ' + UI.groupLabel() + '은 <b>' + esc(subjectShort(w.weak[0].code)) + '</b>입니다. 이 ' + UI.groupLabel() + '부터 집중 학습해 보세요.'
+      : w.weakest ? '모든 ' + UI.groupLabel() + '이 합격선 이상입니다. 가장 낮은 <b>' + esc(subjectShort(w.weakest.code)) + '</b>를 조금 더 다져 두세요.'
+      : '' + UI.groupLabel() + '별 정답 기록이 없습니다.';
 
     var hist = r.history.map(function (h) {
       var e = h.exam, mm = Math.floor(e.durationSec / 60);
@@ -185,12 +186,12 @@
       '<section class="card"><h2>점수 추이 <span class="muted small">최근 ' + r.trend.length + '회</span></h2>' +
       '<div class="chart-box" id="trend"></div>' +
       '<p class="muted small chart-note">점을 누르면 회차 정보가 나오고, 한 번 더 누르면 그 시험 결과로 이동합니다.</p></section>' +
-      '<section class="card" id="weak" tabindex="-1"><h2>취약 과목 분석 <span class="muted small">최근 ' + w.count + '회 실전 기준</span></h2>' +
+      '<section class="card" id="weak" tabindex="-1"><h2>취약 ' + UI.groupLabel() + ' 분석 <span class="muted small">최근 ' + w.count + '회 실전 기준</span></h2>' +
       '<p class="small">' + weakSummary + '</p><ul class="weak-list">' + weakRows + '</ul>' +
-      '<p class="muted small">합격선은 ' + w.line + '%입니다. 실제 시험은 총점으로 판정하지만, 과목별로 고르게 맞혀야 안정적으로 합격할 수 있습니다.</p></section>' +
-      '<section class="card"><h2>과목별 평균 정답률 <span class="muted small">전체 ' + r.count + '회</span></h2>' +
-      '<div class="table-wrap" tabindex="0" role="region" aria-label="표 (좌우로 밀어 볼 수 있음)"><table class="table subj-table"><caption class="sr-only">과목별 평균 정답률 (세로선은 합격선 ' + cfg.pass_score + '%)</caption>' +
-      '<thead><tr><th scope="col">과목</th><th scope="col" class="num">정답률</th><th scope="col"><span class="sr-only">막대</span></th></tr></thead>' +
+      '<p class="muted small">합격선은 ' + w.line + '%입니다. 실제 시험은 총점으로 판정하지만, ' + UI.groupLabel() + '별로 고르게 맞혀야 안정적으로 합격할 수 있습니다.</p></section>' +
+      '<section class="card"><h2>' + UI.groupLabel() + '별 평균 정답률 <span class="muted small">전체 ' + r.count + '회</span></h2>' +
+      '<div class="table-wrap" tabindex="0" role="region" aria-label="표 (좌우로 밀어 볼 수 있음)"><table class="table subj-table"><caption class="sr-only">' + UI.groupLabel() + '별 평균 정답률 (세로선은 합격선 ' + cfg.pass_score + '%)</caption>' +
+      '<thead><tr><th scope="col">' + UI.groupLabel() + '</th><th scope="col" class="num">정답률</th><th scope="col"><span class="sr-only">막대</span></th></tr></thead>' +
       '<tbody>' + subjRows + '</tbody></table></div>' +
       '<p class="muted small">세로선은 합격선(' + cfg.pass_score + '%)입니다. 실제 시험은 총점으로 합격을 판정합니다.</p></section>' +
       '<section class="card"><h2>응시 이력 <span class="muted small">최신순 · 누르면 다시보기</span></h2>' +

@@ -191,6 +191,11 @@ def run(mode="excel", quiet=False):
                 print("  - " + e)
         else:
             print("\n오류 없음")
+    # v2.0: 대형운전면허 문제도 함께 검사 (PRD 13.7) – 파일이 없으면 건너뜀
+    import validate_license
+    le, lw, _ = validate_license.run(mode, quiet=quiet)
+    errors += le
+    warnings += lw
     return errors, warnings, report
 
 
