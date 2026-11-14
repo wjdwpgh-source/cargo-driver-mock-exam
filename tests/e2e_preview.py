@@ -5,6 +5,7 @@ import json
 import os
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,6 +32,7 @@ with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium" if os.path.exists("/opt/pw-browsers/chromium") else None
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
     ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     page = ctx.new_page()
     js_errors = []
     page.on("pageerror", lambda e: js_errors.append(str(e)))
@@ -71,7 +73,8 @@ with sync_playwright() as p:
     subj = page.evaluate("() => CDME.app.store.getProfileData().inProgress.items.map(i => i.subject)")
     check([subj.count(c) for c in ("LAW", "CARGO", "SAFE", "SERVICE")] == [25, 15, 25, 15], "과목별 25/15/25/15 출제")
     ids = page.evaluate("() => CDME.app.store.getProfileData().inProgress.items.map(i => i.qid)")
-    check(all(QS[i]["status"] == "draft" for i in ids), "출제 문제는 모두 초안(draft)")
+    st = page.evaluate("(ids) => ids.map(id => CDME.app.getBank().byId[id]._status || CDME.app.getBank().byId[id].status)", ids)
+    check(all(x == "draft" for x in st), "출제 문제는 모두 초안(draft)")
 
     print("[4] 미리보기를 끄고 이어 풀기 → 미리보기 모드로 자동 복귀")
     page.click("#ex-later")

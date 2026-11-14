@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -35,7 +36,8 @@ def check(cond, msg):
 
 
 def new_device(browser, nick, w=360):
-    c = browser.new_context(viewport={"width": w, "height": 800}, locale="ko-KR", accept_downloads=True)
+    c = browser.new_context(viewport={"width": w, "height": 800}, locale="ko-KR", accept_downloads=True, service_workers="block")
+    as_drafts(c)
     c.add_init_script("localStorage.setItem('cdme_sample','1')")
     pg = c.new_page()
     pg.on("pageerror", lambda e: js_errors.append(str(e)))
@@ -83,9 +85,9 @@ with sync_playwright() as p:
     pa.wait_for_selector("#exp-me")
     pa.screenshot(path=f"{SHOT}/s6_01_data.png", full_page=True)
     path_a, fname = export_me(pa, "a.json")
-    check(fname.startswith("화물모의시험_백업_화물왕_") and fname.endswith(".json"), f"파일 이름 ({fname})")
+    check(fname.startswith("면허문제_백업_화물왕_") and fname.endswith(".json"), f"파일 이름 ({fname})")
     j = json.load(open(path_a, encoding="utf-8"))
-    check(j["app"] == "cdme" and len(j["profiles"]) == 1 and len(j["profiles"][0]["data"]["exams"]) == 2, "백업 내용: 닉네임 1, 시험 2")
+    check(j["app"] == "cdme" and len(j["profiles"]) == 1 and len(j["profiles"][0]["data"]["cargo"]["exams"]) == 2, "백업 내용: 닉네임 1, 시험 2")
     check(pa.locator("#exp-all").count() == 0, "닉네임 1개면 전체 백업 버튼 없음")
 
     print("[3] 기기 B: 같은 닉네임(시험 1회)에 불러오기 → 합치기 (FR-902, 903)")

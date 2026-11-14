@@ -13,7 +13,7 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = dict(os.environ, PYTHONIOENCODING="utf-8")
-E2E = ["e2e_s1", "e2e_s2", "e2e_s3", "e2e_s4", "e2e_s5", "e2e_s6", "e2e_s7", "e2e_preview", "e2e_hint", "e2e_tc", "e2e_study"]
+E2E = ["e2e_s1", "e2e_s2", "e2e_s3", "e2e_s4", "e2e_s5", "e2e_s6", "e2e_s7", "e2e_preview", "e2e_hint", "e2e_tc", "e2e_study", "e2e_exams", "e2e_multi", "e2e_media"]
 
 
 def port_open(port):
@@ -53,6 +53,7 @@ def main():
         else:
             print("단위 테스트     건너뜀 (Node.js 없음)")
         results.append(run("문제 도구", [sys.executable, "tests/test_tools.py"]))
+        results.append(run("대형 도구", [sys.executable, "tests/test_license_tools.py"]))
         results.append(run("문제 검사", [sys.executable, "tools/validate.py", "--json"]))
         for t in E2E:
             results.append(run(t, [sys.executable, os.path.join("tests", t + ".py")]))

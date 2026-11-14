@@ -5,6 +5,7 @@ import os
 import re
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import dev_on
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -40,6 +41,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
     ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR")
     ctx.add_init_script("localStorage.setItem('cdme_sample','1')")
+    dev_on(ctx)
     page = ctx.new_page()
     page.on("pageerror", lambda e: js_errors.append(str(e)))
 
@@ -118,6 +120,7 @@ with sync_playwright() as p:
     print("[6] 오프라인 동작 (NFR-04, TC-18)")
     ctx3 = browser.new_context(viewport={"width": 360, "height": 740})
     ctx3.add_init_script("localStorage.setItem('cdme_sample','1')")
+    dev_on(ctx3)
     p3 = ctx3.new_page()
     p3.on("pageerror", lambda e: js_errors.append(str(e)))
     p3.goto(BASE)
@@ -170,7 +173,7 @@ with sync_playwright() as p:
 
     print("[9] 매니페스트·아이콘")
     r = page.request.get(BASE + "manifest.webmanifest")
-    check(r.ok and r.json()["short_name"] == "화물 모의시험", "manifest 제공")
+    check(r.ok and r.json()["short_name"] == "면허문제", "manifest 제공")
     check(page.request.get(BASE + "images/icon-512.png").ok, "아이콘 512")
 
     check(not js_errors, "자바스크립트 오류 없음 " + "; ".join(js_errors))

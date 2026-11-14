@@ -1,0 +1,467 @@
+{
+ "subject": "TEXT1",
+ "exam": "license",
+ "updated_at": "2026-11-14",
+ "questions": [
+  {
+   "id": "DL-9001",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 1] 정답은 ①입니다.",
+   "choices": [
+    "보기 1 (TEXT1 1)",
+    "보기 2 (TEXT1 1)",
+    "보기 3 (TEXT1 1)",
+    "보기 4 (TEXT1 1)"
+   ],
+   "answer": [
+    1
+   ],
+   "explanation": "확인용 해설 – 정답은 ①번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9002",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 2] 정답은 ②입니다.",
+   "choices": [
+    "보기 1 (TEXT1 2)",
+    "보기 2 (TEXT1 2)",
+    "보기 3 (TEXT1 2)",
+    "보기 4 (TEXT1 2)"
+   ],
+   "answer": [
+    2
+   ],
+   "explanation": "확인용 해설 – 정답은 ②번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9003",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 3] 정답은 ③입니다.",
+   "choices": [
+    "보기 1 (TEXT1 3)",
+    "보기 2 (TEXT1 3)",
+    "보기 3 (TEXT1 3)",
+    "보기 4 (TEXT1 3)"
+   ],
+   "answer": [
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ③번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9004",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 4] 정답은 ④입니다.",
+   "choices": [
+    "보기 1 (TEXT1 4)",
+    "보기 2 (TEXT1 4)",
+    "보기 3 (TEXT1 4)",
+    "보기 4 (TEXT1 4)"
+   ],
+   "answer": [
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ④번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9005",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 5] 정답은 ①입니다.",
+   "choices": [
+    "보기 1 (TEXT1 5)",
+    "보기 2 (TEXT1 5)",
+    "보기 3 (TEXT1 5)",
+    "보기 4 (TEXT1 5)"
+   ],
+   "answer": [
+    1
+   ],
+   "explanation": "확인용 해설 – 정답은 ①번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9006",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 6] 정답은 ②입니다.",
+   "choices": [
+    "보기 1 (TEXT1 6)",
+    "보기 2 (TEXT1 6)",
+    "보기 3 (TEXT1 6)",
+    "보기 4 (TEXT1 6)"
+   ],
+   "answer": [
+    2
+   ],
+   "explanation": "확인용 해설 – 정답은 ②번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9007",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 7] 정답은 ③입니다.",
+   "choices": [
+    "보기 1 (TEXT1 7)",
+    "보기 2 (TEXT1 7)",
+    "보기 3 (TEXT1 7)",
+    "보기 4 (TEXT1 7)"
+   ],
+   "answer": [
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ③번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9008",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 8] 정답은 ④입니다.",
+   "choices": [
+    "보기 1 (TEXT1 8)",
+    "보기 2 (TEXT1 8)",
+    "보기 3 (TEXT1 8)",
+    "보기 4 (TEXT1 8)"
+   ],
+   "answer": [
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9009",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 9] 정답은 ①입니다.",
+   "choices": [
+    "보기 1 (TEXT1 9)",
+    "보기 2 (TEXT1 9)",
+    "보기 3 (TEXT1 9)",
+    "보기 4 (TEXT1 9)"
+   ],
+   "answer": [
+    1
+   ],
+   "explanation": "확인용 해설 – 정답은 ①번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9010",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 10] 정답은 ②입니다.",
+   "choices": [
+    "보기 1 (TEXT1 10)",
+    "보기 2 (TEXT1 10)",
+    "보기 3 (TEXT1 10)",
+    "보기 4 (TEXT1 10)"
+   ],
+   "answer": [
+    2
+   ],
+   "explanation": "확인용 해설 – 정답은 ②번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9011",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 11] 정답은 ③입니다.",
+   "choices": [
+    "보기 1 (TEXT1 11)",
+    "보기 2 (TEXT1 11)",
+    "보기 3 (TEXT1 11)",
+    "보기 4 (TEXT1 11)"
+   ],
+   "answer": [
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ③번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9012",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 12] 정답은 ④입니다.",
+   "choices": [
+    "보기 1 (TEXT1 12)",
+    "보기 2 (TEXT1 12)",
+    "보기 3 (TEXT1 12)",
+    "보기 4 (TEXT1 12)"
+   ],
+   "answer": [
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9013",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 13] 정답은 ①입니다.",
+   "choices": [
+    "보기 1 (TEXT1 13)",
+    "보기 2 (TEXT1 13)",
+    "보기 3 (TEXT1 13)",
+    "보기 4 (TEXT1 13)"
+   ],
+   "answer": [
+    1
+   ],
+   "explanation": "확인용 해설 – 정답은 ①번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9014",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 14] 정답은 ②입니다.",
+   "choices": [
+    "보기 1 (TEXT1 14)",
+    "보기 2 (TEXT1 14)",
+    "보기 3 (TEXT1 14)",
+    "보기 4 (TEXT1 14)"
+   ],
+   "answer": [
+    2
+   ],
+   "explanation": "확인용 해설 – 정답은 ②번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9015",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 15] 정답은 ③입니다.",
+   "choices": [
+    "보기 1 (TEXT1 15)",
+    "보기 2 (TEXT1 15)",
+    "보기 3 (TEXT1 15)",
+    "보기 4 (TEXT1 15)"
+   ],
+   "answer": [
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ③번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9016",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 16] 정답은 ④입니다.",
+   "choices": [
+    "보기 1 (TEXT1 16)",
+    "보기 2 (TEXT1 16)",
+    "보기 3 (TEXT1 16)",
+    "보기 4 (TEXT1 16)"
+   ],
+   "answer": [
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ④번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9017",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 17] 정답은 ①입니다.",
+   "choices": [
+    "보기 1 (TEXT1 17)",
+    "보기 2 (TEXT1 17)",
+    "보기 3 (TEXT1 17)",
+    "보기 4 (TEXT1 17)"
+   ],
+   "answer": [
+    1
+   ],
+   "explanation": "확인용 해설 – 정답은 ①번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9018",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 18] 정답은 ②입니다.",
+   "choices": [
+    "보기 1 (TEXT1 18)",
+    "보기 2 (TEXT1 18)",
+    "보기 3 (TEXT1 18)",
+    "보기 4 (TEXT1 18)"
+   ],
+   "answer": [
+    2
+   ],
+   "explanation": "확인용 해설 – 정답은 ②번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9019",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 19] 정답은 ③입니다.",
+   "choices": [
+    "보기 1 (TEXT1 19)",
+    "보기 2 (TEXT1 19)",
+    "보기 3 (TEXT1 19)",
+    "보기 4 (TEXT1 19)"
+   ],
+   "answer": [
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ③번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9020",
+   "exam": "license",
+   "subject": "TEXT1",
+   "category": "SAFE",
+   "question": "[확인용 TEXT1 20] 정답은 ④입니다.",
+   "choices": [
+    "보기 1 (TEXT1 20)",
+    "보기 2 (TEXT1 20)",
+    "보기 3 (TEXT1 20)",
+    "보기 4 (TEXT1 20)"
+   ],
+   "answer": [
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  }
+ ]
+}

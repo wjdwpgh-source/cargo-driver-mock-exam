@@ -178,8 +178,8 @@ with sync_playwright() as p:
     check("법규 48%" in page.inner_text("#st-form"), "설정 화면에 추천 과목")
 
     print("[7] 백업에 북마크·학습 기록 포함, 큰 글씨·다크 모드")
-    bk = page.evaluate("() => CDME.backup.buildBackup([{ name: 'x', data: CDME.app.store.getProfileData() }])")
-    check(len(bk["profiles"][0]["data"]["bookmarks"]) == 2 and len(bk["profiles"][0]["data"]["studySessions"]) == 1, "백업 파일에 북마크 2·학습 1")
+    bk = page.evaluate("() => CDME.backup.buildBackup([{ name: 'x', data: CDME.app.store.getProfileAll() }])")
+    check(len(bk["profiles"][0]["data"]["cargo"]["bookmarks"]) == 2 and len(bk["profiles"][0]["data"]["cargo"]["studySessions"]) == 1, "백업 파일에 북마크 2·학습 1")
     page.emulate_media(color_scheme="dark")
     page.evaluate("localStorage.setItem('cdme_font','xl')")
     for r in ("study", "bookmarks", "records"):

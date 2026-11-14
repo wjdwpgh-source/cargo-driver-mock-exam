@@ -5,6 +5,7 @@ import json
 import os
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +34,7 @@ with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium" if os.path.exists("/opt/pw-browsers/chromium") else None
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
     ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     page = ctx.new_page()
     js_errors = []
     page.on("pageerror", lambda e: js_errors.append(str(e)))
@@ -145,7 +147,9 @@ with sync_playwright() as p:
     page.evaluate("localStorage.setItem('cdme_font','xl')")
     page.goto(BASE + "#/home")
     page.reload()
+    page.wait_for_selector("text=80문항 · 80분")
     page.click("#start-exam")
+    page.wait_for_selector(".modal [data-act=ok], .q-card .choice")
     if page.locator(".modal [data-act=ok]").count():
         page.click(".modal [data-act=ok]")
     page.wait_for_selector("#ex-hint")

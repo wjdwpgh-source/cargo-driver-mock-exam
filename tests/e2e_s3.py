@@ -5,6 +5,7 @@ import os
 import re
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -48,6 +49,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
     # 설정 파일을 가로채는 [10]번 테스트를 위해 오프라인 기능(Service Worker)은 끔
     ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     # 저장소 주소가 정해지기 전 상태를 흉내 ([5]), [10]에서는 페이지 단위로 다시 바꿈
     CFG = open(os.path.join(os.path.dirname(__file__), "..", "data", "config.json"), encoding="utf-8").read()
     CFG = re.sub(r"https://github\.com/[^/]+/", "https://github.com/<계정>/", CFG)
@@ -152,7 +154,8 @@ with sync_playwright() as p:
     check("%EB%AC%B8%EC%A0%9C%20%EC%98%A4%EB%A5%98" in href, "제목에 [문제 오류] 포함")
 
     print("[11] PC 다크 모드 스크린샷")
-    ctx3 = browser.new_context(viewport={"width": 1280, "height": 1000}, color_scheme="dark")
+    ctx3 = browser.new_context(viewport={"width": 1280, "height": 1000}, color_scheme="dark", service_workers="block")
+    as_drafts(ctx3)
     ctx3.add_init_script("localStorage.setItem('cdme_sample','1')")
     p3 = ctx3.new_page()
     p3.goto(BASE)

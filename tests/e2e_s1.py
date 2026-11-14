@@ -4,6 +4,7 @@
 import os
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -20,7 +21,8 @@ def check(cond, msg):
 with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium" if os.path.exists("/opt/pw-browsers/chromium") else None
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR")
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     page = ctx.new_page()
     console_errors = []
     page.on("pageerror", lambda e: console_errors.append(str(e)))
@@ -98,7 +100,8 @@ with sync_playwright() as p:
     page.wait_for_selector("text=홍길동님, 반갑습니다")
 
     print("[9] 저장 불가 환경(메모리 모드) 안내")
-    ctx2 = browser.new_context(viewport={"width": 360, "height": 740})
+    ctx2 = browser.new_context(viewport={"width": 360, "height": 740}, service_workers="block")
+    as_drafts(ctx2)
     ctx2.add_init_script("Object.defineProperty(window,'localStorage',{get(){throw new Error('blocked')}})")
     pg2 = ctx2.new_page()
     pg2.goto(BASE)
@@ -107,7 +110,8 @@ with sync_playwright() as p:
     ctx2.close()
 
     print("[10] 다크 모드 · PC 폭 스크린샷")
-    ctx3 = browser.new_context(viewport={"width": 1280, "height": 800}, color_scheme="dark")
+    ctx3 = browser.new_context(viewport={"width": 1280, "height": 800}, color_scheme="dark", service_workers="block")
+    as_drafts(ctx3)
     pg3 = ctx3.new_page()
     pg3.goto(BASE)
     pg3.wait_for_selector("#nick")

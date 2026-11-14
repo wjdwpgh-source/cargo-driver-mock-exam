@@ -5,6 +5,7 @@ import os
 import re
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -51,7 +52,8 @@ def active_count(page):
 with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium" if os.path.exists("/opt/pw-browsers/chromium") else None
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR")
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     ctx.add_init_script("localStorage.setItem('cdme_sample','1')")
     page = ctx.new_page()
     js_errors = []
@@ -220,7 +222,8 @@ with sync_playwright() as p:
     check(not js_errors, "자바스크립트 오류 없음 " + "; ".join(js_errors))
 
     print("[12] PC 다크 스크린샷")
-    c3 = browser.new_context(viewport={"width": 1100, "height": 1000}, color_scheme="dark")
+    c3 = browser.new_context(viewport={"width": 1100, "height": 1000}, color_scheme="dark", service_workers="block")
+    as_drafts(c3)
     c3.add_init_script("localStorage.setItem('cdme_sample','1')")
     p3 = c3.new_page()
     p3.goto(BASE)

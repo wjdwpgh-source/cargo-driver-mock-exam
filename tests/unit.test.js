@@ -68,8 +68,9 @@ test('더 새로운 schemaVersion 데이터는 덮어쓰지 않음', () => {
 
 test('migrate: 빠진 필드 보완, 없는 활성 ID 정리', () => {
   const s = S.migrate({ profiles: [{ id: 'x', name: 'A' }], activeProfileId: 'zzz' });
-  assert.equal(s.schemaVersion, 1);
+  assert.equal(s.schemaVersion, 2, 'v2.0: 시험별 구조로 변환');
   assert.deepEqual(Object.keys(s.data), ['x']);
+  assert.deepEqual(Object.keys(s.data.x).sort(), ['cargo', 'license']);
   assert.equal(s.activeProfileId, null);
 });
 
@@ -79,7 +80,7 @@ test('localStorage 사용 불가 시 null 반환(메모리 모드로 대체)', (
 });
 
 /* ---------- 문제 데이터 ---------- */
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/config.json'), 'utf8'));
+const cfg = Q.normalizeConfig(JSON.parse(fs.readFileSync(path.join(__dirname, '../data/config.json'), 'utf8')), 'cargo');   // v2.0: 화물 규격으로 펼침
 const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/questions/LAW.json'), 'utf8'));
 
 test('config.json 규격: 25/15/25/15, 80분, 60점', () => {
@@ -425,14 +426,14 @@ function mkData() {
 }
 
 test('백업 만들기·읽기: 진행 중 상태 제외, 왕복 보존 (FR-901, 902)', () => {
-  const b = B.buildBackup([{ name: '화물왕', createdAt: 'C', data: mkData() }], 'NOW');
-  assert.equal(b.app, 'cdme'); assert.equal(b.schemaVersion, 1);
-  assert.equal(b.profiles[0].data.inProgress, undefined);
+  const b = B.buildBackup([{ name: '화물왕', createdAt: 'C', data: { cargo: mkData() } }], 'NOW');
+  assert.equal(b.app, 'cdme'); assert.equal(b.schemaVersion, 2);
+  assert.equal(b.profiles[0].data.cargo.inProgress, undefined);
   const r = B.parse(JSON.stringify(b));
   assert.equal(r.ok, true);
-  assert.equal(r.backup.profiles[0].data.exams.length, 2);
-  assert.deepEqual(B.summarizeData(r.backup.profiles[0].data), { exams: 2, notes: 1, mastered: 1, reviews: 1, bookmarks: 0, studies: 0 });
-  assert.ok(B.fileName('화물 왕', '2026-10-19T03:04:00Z').startsWith('화물모의시험_백업_화물_왕_20261019_'));
+  assert.equal(r.backup.profiles[0].data.cargo.exams.length, 2);
+  assert.deepEqual(B.summarizeData(r.backup.profiles[0].data.cargo), { exams: 2, notes: 1, mastered: 1, reviews: 1, bookmarks: 0, studies: 0 });
+  assert.ok(B.fileName('화물 왕', '2026-10-19T03:04:00Z').startsWith('면허문제_백업_화물_왕_20261019_'));
 });
 
 test('백업 형식 검사: 깨진 파일·다른 파일·신버전·잘못된 기록 거부 (FR-902)', () => {
@@ -464,8 +465,8 @@ test('불러오기 계획·실행: 새 닉네임 / 합치기 / 덮어쓰기 / �
   const a = st.createProfile('화물왕').profile;
   st.replaceProfileData(a.id, mkData());
   const bk = B.parse(JSON.stringify(B.buildBackup([
-    { name: '화물왕', data: { exams: [{ id: 'y1', score: 90, finishedAt: '2026-10-09T00:00:00Z', answers: [] }] } },
-    { name: '홍길동', data: { exams: [] } }
+    { name: '화물왕', data: { cargo: { exams: [{ id: 'y1', score: 90, finishedAt: '2026-10-09T00:00:00Z', answers: [] }] } } },
+    { name: '홍길동', data: { cargo: { exams: [] } } }
   ]))).backup;
   let steps = B.plan(bk, st.listProfiles());
   assert.deepEqual(steps.map(s => s.action), ['merge', 'new']);
@@ -637,7 +638,7 @@ test('예전 기록에 북마크·학습 항목 자동 추가, 백업·합치기
   const d = st.getProfileData('p');
   assert.deepEqual(d.bookmarks, {}); assert.deepEqual(d.studySessions, []); assert.equal(d.studyInProgress, null);
   const data = Object.assign(mkData(), { bookmarks: { 'LAW-0001': { subject: 'LAW', added_at: 'A' } }, studySessions: [{ id: 's1', at: '2026-10-05T00:00:00Z' }], studyInProgress: { id: 'sip' } });
-  const b = B.parse(JSON.stringify(B.buildBackup([{ name: 'a', data }]))).backup.profiles[0].data;
+  const b = B.parse(JSON.stringify(B.buildBackup([{ name: 'a', data: { cargo: data } }]))).backup.profiles[0].data.cargo;
   assert.equal(b.studyInProgress, undefined, '진행 중 학습은 백업 안 함');
   assert.equal(Object.keys(b.bookmarks).length, 1); assert.equal(b.studySessions.length, 1);
   const m = B.merge({ exams: [], wrongNotes: {}, bookmarks: { 'SAFE-0001': { subject: 'SAFE' } }, studySessions: [{ id: 's0', at: '2026-10-01T00:00:00Z' }] }, b);
@@ -648,4 +649,297 @@ test('예전 기록에 북마크·학습 항목 자동 추가, 백업·합치기
   assert.equal(Object.keys(r1.bookmarks).length, 1, '오답노트만 지우면 북마크는 남음');
   const r2 = B.resetData(data, 'all');
   assert.deepEqual(r2.bookmarks, {}); assert.deepEqual(r2.studySessions, []); assert.equal(r2.studyInProgress, null);
+});
+
+/* ---------- v2.0 L1: 시험 종류 (화물·대형면허) ---------- */
+test('config v2 펼치기: 화물 25/15/25/15·80분·60점 / 대형 17/4/5/13/1·40분·70점, v1 형식도 읽음', () => {
+  const raw = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/config.json'), 'utf8'));
+  const c = Q.normalizeConfig(raw, 'cargo');
+  assert.equal(c.kind, 'cargo'); assert.equal(c.exam.minutes, 80); assert.equal(c.exam.pass_score, 60);
+  assert.deepEqual(c.exam.subjects.map(s => s.count), [25, 15, 25, 15]);
+  assert.equal(c.data_date, raw.exams.cargo.data_date);
+  const l = Q.normalizeConfig(raw, 'license');
+  assert.equal(l.kind, 'license'); assert.equal(l.exam.minutes, 40); assert.equal(l.exam.pass_score, 70); assert.equal(l.exam.id_prefix, 'DL');
+  assert.deepEqual(l.exam.subjects.map(s => s.code), ['TEXT1', 'TEXT2', 'SIGN', 'ILLUST2', 'ILLUST1']);
+  assert.equal(l.exam.subjects.reduce((a, s) => a + s.count, 0), 40);
+  assert.equal(Math.ceil(40 * 70 / 100), 28, '70점 = 28문항');
+  const v1 = Q.normalizeConfig({ exam: { minutes: 80, pass_score: 60, subjects: [{ code: 'LAW', name: '법규', count: 25 }] }, data_date: 'D' }, 'cargo');
+  assert.equal(v1.exam.subjects.length, 1); assert.equal(v1.data_date, 'D');
+  assert.equal(Q.normalizeConfig(raw, 'zzz').kind, 'cargo', '모르는 시험은 기본 시험');
+  assert.equal(Q.examShort('license', c), '대형'); assert.equal(Q.examName('cargo'), '화물운송종사자격');
+});
+
+test('대형 문제 파일: 5개 그룹 파일 형식 정상, 문제 없으면 시작 차단 (FR-211)', () => {
+  const raw = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/config.json'), 'utf8'));
+  const l = Q.normalizeConfig(raw, 'license');
+  const files = {};
+  for (const g of l.exam.subjects) files[g.code] = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/license/questions', g.code + '.json'), 'utf8'));
+  const bank = Q.buildBank(l, files);
+  assert.equal(bank.warnings.length, 0, bank.warnings.join('; '));
+  const E = require('../src/exam.js');
+  assert.equal(E.checkReady(bank).ok, Object.values(bank.bySubject).every((v, i) => v.filter(q => q.status === 'verified').length >= l.exam.subjects[i].count));
+  // id 앞머리 규칙: DL-0001 이고 subject는 그룹 코드
+  const q = { id: 'DL-0001', subject: 'TEXT1', question: 'q', choices: ['a', 'b', 'c', 'd'], answer: 1, explanation: 'e', status: 'draft' };
+  assert.deepEqual(Q.checkQuestion(q, 'TEXT1', 'DL'), []);
+  assert.ok(Q.checkQuestion(Object.assign({}, q, { id: 'TEXT1-0001' }), 'TEXT1', 'DL').length > 0);
+});
+
+test('저장 구조 v1 → v2 변환: 화물 기록 보존, 원본 보관, 대형은 빈 기록 (TC-L01)', () => {
+  const ad = S.memoryAdapter();
+  const v1 = { schemaVersion: 1, activeProfileId: 'p', profiles: [{ id: 'p', name: '옛날' }],
+    data: { p: { exams: [{ id: 'e1', score: 70, answers: [] }, { id: 'e2', score: 50, answers: [] }, { id: 'e3', score: 80, answers: [] }],
+      wrongNotes: { 'LAW-0001': { state: 'active', wrong_count: 1 } }, reviewSessions: [], inProgress: { id: 'ip' }, reviewInProgress: null,
+      bookmarks: { 'SAFE-0001': {} }, studySessions: [], studyInProgress: null } } };
+  ad.set('cdme', JSON.stringify(v1));
+  const st = S.createStore(ad);
+  assert.equal(st.error, null);
+  assert.equal(st.exam, 'cargo', '처음엔 화물');
+  const d = st.getProfileData('p');
+  assert.equal(d.exams.length, 3); assert.equal(Object.keys(d.wrongNotes).length, 1); assert.deepEqual(d.inProgress, { id: 'ip' });
+  assert.equal(Object.keys(d.bookmarks).length, 1);
+  assert.equal(ad.get(S.BACKUP_V1_KEY), JSON.stringify(v1), '변환 전 원본 보관');
+  const saved = JSON.parse(ad.get('cdme'));
+  assert.equal(saved.schemaVersion, 2, '변환 결과를 바로 저장');
+  assert.equal(saved.data.p.cargo.exams.length, 3);
+  assert.deepEqual(st.getProfileData('p', 'license').exams, []);
+  // 두 번 열어도 같은 결과(멱등), 원본 보관은 덮어쓰지 않음
+  const st2 = S.createStore(ad);
+  assert.equal(st2.getProfileData('p').exams.length, 3);
+  assert.equal(ad.get(S.BACKUP_V1_KEY), JSON.stringify(v1));
+});
+
+test('시험 전환: 기록·오답·북마크·진행 상태가 시험별로 분리, 현재 시험 기억 (TC-L02)', () => {
+  const ad = S.memoryAdapter();
+  const st = S.createStore(ad);
+  const a = st.createProfile('둘다').profile;
+  st.updateProfileData(a.id, d => { d.exams.push({ id: 'c1', score: 70, answers: [] }); d.inProgress = { id: 'cip' }; d.bookmarks['LAW-0001'] = {}; });
+  assert.equal(st.setExam('license'), true);
+  assert.equal(st.exam, 'license');
+  assert.deepEqual(st.getProfileData(a.id).exams, [], '대형 기록은 비어 있음');
+  assert.equal(st.getProfileData(a.id).inProgress, null);
+  st.updateProfileData(a.id, d => { d.exams.push({ id: 'l1', score: 75, answers: [] }); d.wrongNotes['DL-0001'] = { state: 'active' }; });
+  assert.equal(st.setExam('zzz'), false, '모르는 시험은 거부');
+  const st2 = S.createStore(ad);
+  assert.equal(st2.exam, 'license', '현재 시험을 기기에 기억');
+  assert.deepEqual(st2.getProfileData(a.id).exams.map(e => e.id), ['l1']);
+  st2.setExam('cargo');
+  const c = st2.getProfileData(a.id);
+  assert.deepEqual(c.exams.map(e => e.id), ['c1']); assert.deepEqual(c.inProgress, { id: 'cip' });
+  assert.deepEqual(Object.keys(c.wrongNotes), [], '오답노트 분리');
+  assert.deepEqual(Object.keys(st2.getProfileAll(a.id)).sort(), ['cargo', 'license']);
+  // 초기화는 현재 시험만
+  st2.replaceProfileData(a.id, B.resetData(st2.getProfileData(a.id), 'all'));
+  assert.deepEqual(st2.getProfileData(a.id).exams, []);
+  assert.equal(st2.getProfileData(a.id, 'license').exams.length, 1, '다른 시험 기록은 그대로');
+});
+
+test('백업 v1 파일 불러오기 = 화물 기록, v2 왕복은 두 시험 모두 (TC-L10, L11)', () => {
+  const v1 = JSON.stringify({ app: 'cdme', kind: 'backup', schemaVersion: 1, exportedAt: 'T',
+    profiles: [{ name: '화물왕', data: { exams: [{ id: 'o1', score: 60, finishedAt: '2026-10-01T00:00:00Z', answers: [] }] } }] });
+  const r = B.parse(v1);
+  assert.equal(r.ok, true);
+  assert.deepEqual(Object.keys(r.backup.profiles[0].data), ['cargo']);
+  const st = S.createStore(S.memoryAdapter());
+  const a = st.createProfile('화물왕').profile;
+  st.setExam('license');
+  st.updateProfileData(a.id, d => d.exams.push({ id: 'l1', score: 80, finishedAt: '2026-10-02T00:00:00Z', answers: [] }));
+  B.apply(st, B.plan(r.backup, st.listProfiles()));
+  assert.deepEqual(st.getProfileData(a.id, 'cargo').exams.map(e => e.id), ['o1'], 'v1 백업은 화물로 합쳐짐');
+  assert.deepEqual(st.getProfileData(a.id, 'license').exams.map(e => e.id), ['l1'], '대형 기록은 그대로');
+  // v2 왕복: 다른 기기(새 저장소)에서 두 시험 모두 복원
+  const bk = B.buildBackup([{ name: '화물왕', createdAt: 'C', data: st.getProfileAll(a.id) }]);
+  const st2 = S.createStore(S.memoryAdapter());
+  const res = B.apply(st2, B.plan(B.parse(JSON.stringify(bk)).backup, st2.listProfiles()));
+  assert.equal(res[0].ok, true);
+  const id2 = res[0].profileId;
+  assert.deepEqual(st2.getProfileData(id2, 'cargo').exams.map(e => e.id), ['o1']);
+  assert.deepEqual(st2.getProfileData(id2, 'license').exams.map(e => e.id), ['l1']);
+  const sum = B.summarizeAll(bk.profiles[0].data);
+  assert.equal(sum.cargo.exams, 1); assert.equal(sum.license.exams, 1);
+  // 덮어쓰기는 백업에 있는 시험만
+  const only = B.parse(JSON.stringify({ app: 'cdme', kind: 'backup', schemaVersion: 2, profiles: [{ name: '화물왕', data: { cargo: { exams: [] } } }] })).backup;
+  const steps = B.plan(only, st2.listProfiles()); steps[0].action = 'overwrite';
+  B.apply(st2, steps);
+  assert.deepEqual(st2.getProfileData(id2, 'cargo').exams, []);
+  assert.equal(st2.getProfileData(id2, 'license').exams.length, 1);
+});
+
+
+/* ---------- v2.0 L2: 정답 2개·보기 5개 채점 ---------- */
+function licenseBank() {
+  const raw = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/config.json'), 'utf8'));
+  const c = Q.normalizeConfig(raw, 'license');
+  const files = {};
+  for (const g of c.exam.subjects) files[g.code] = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/license', g.code + '.json'), 'utf8'));
+  return Q.buildBank(c, files);
+}
+
+test('정답 판정: 1답(정수·배열)·2답(순서 무관, 둘 다 맞아야)', () => {
+  const E = require('../src/exam.js');
+  const q1 = { answer: 3 }, q2 = { answer: [4, 1] };
+  assert.deepEqual(E.answerSet(q1), [3]); assert.deepEqual(E.answerSet(q2), [1, 4]);
+  assert.equal(E.isMulti(q1), false); assert.equal(E.isMulti(q2), true); assert.equal(E.needCount(q2), 2);
+  assert.equal(E.isCorrect(q1, 3), true); assert.equal(E.isCorrect(q1, [3]), true); assert.equal(E.isCorrect(q1, 2), false);
+  assert.equal(E.isCorrect(q2, [1, 4]), true); assert.equal(E.isCorrect(q2, [4, 1]), true, '순서 무관');
+  assert.equal(E.isCorrect(q2, [1, 3]), false, '하나만 맞으면 오답(부분 점수 없음)');
+  assert.equal(E.isCorrect(q2, 1), false); assert.equal(E.isCorrect(q2, null), false);
+  assert.equal(E.hasChoice([1, 4], 4), true); assert.equal(E.hasChoice(2, 2), true); assert.equal(E.hasChoice(null, 2), false);
+});
+
+test('문제 형식 검사: 그룹별 보기 수·정답 수 (TEXT2 4지 2답, ILLUST2 5지 2답)', () => {
+  const base = { id: 'DL-0001', subject: 'ILLUST2', question: 'q', choices: ['a', 'b', 'c', 'd', 'e'], answer: [2, 5], explanation: 'e', status: 'draft' };
+  const rule = { choices: 5, answers: 2 };
+  assert.deepEqual(Q.checkQuestion(base, 'ILLUST2', 'DL', rule), []);
+  assert.ok(Q.checkQuestion(Object.assign({}, base, { answer: 2 }), 'ILLUST2', 'DL', rule).length, '2답인데 정답 1개');
+  assert.ok(Q.checkQuestion(Object.assign({}, base, { answer: [2, 2] }), 'ILLUST2', 'DL', rule).length, '같은 번호 2번');
+  assert.ok(Q.checkQuestion(Object.assign({}, base, { answer: [2, 6] }), 'ILLUST2', 'DL', rule).length, '범위 밖');
+  assert.ok(Q.checkQuestion(Object.assign({}, base, { choices: ['a', 'b', 'c', 'd'] }), 'ILLUST2', 'DL', rule).length, '보기 4개');
+  assert.deepEqual(Q.checkQuestion(Object.assign({}, base, { subject: 'TEXT1', choices: ['a', 'b', 'c', 'd'], answer: [3] }), 'TEXT1', 'DL', { choices: 4, answers: 1 }), [], '1답 배열 허용');
+  assert.ok(Q.checkQuestion(Object.assign({}, base, { subject: 'LAW', id: 'LAW-0001', choices: ['a', 'b', 'c', 'd'], answer: 5 }), 'LAW').length, '화물은 4지 1~4');
+});
+
+test('대형 출제 100회: 17/4/5/13/1, 유형 순서, 중복 없음, verified만, 5지 문항 기록 (TC-L03)', () => {
+  const E = require('../src/exam.js');
+  const bank = licenseBank();
+  assert.equal(bank.warnings.length, 0, bank.warnings.join('; '));
+  for (let r = 0; r < 100; r++) {
+    const ip = E.buildExam(bank, {});
+    assert.equal(ip.items.length, 40);
+    assert.equal(ip.totalMs, 40 * 60000);
+    const cnt = {}; ip.items.forEach(it => { cnt[it.subject] = (cnt[it.subject] || 0) + 1; });
+    assert.deepEqual(cnt, { TEXT1: 17, TEXT2: 4, SIGN: 5, ILLUST2: 13, ILLUST1: 1 });
+    const order = ['TEXT1', 'TEXT2', 'SIGN', 'ILLUST2', 'ILLUST1'];
+    for (let i = 1; i < 40; i++) assert.ok(order.indexOf(ip.items[i].subject) >= order.indexOf(ip.items[i - 1].subject));
+    assert.equal(new Set(ip.items.map(i => i.qid)).size, 40);
+    assert.ok(ip.items.filter(i => i.subject === 'ILLUST2').every(i => i.nc === 5));
+    assert.ok(ip.items.filter(i => i.subject !== 'ILLUST2').every(i => i.nc === undefined));
+  }
+});
+
+test('2답 선택: 첫 선택은 선택됨(다시 누르면 취소), 두 번째에서 채점·고정, 5지 범위 (FR-L05, TC-L04·L05)', () => {
+  const E = require('../src/exam.js');
+  const bank = licenseBank();
+  const ip = E.buildExam(bank, { rng: () => 0.5 });
+  const i = ip.items.findIndex(it => it.subject === 'ILLUST2');
+  const q = bank.byId[ip.items[i].qid];
+  const [a, b] = E.answerSet(q);
+  let r = E.togglePending(ip, i, a, 2);
+  assert.equal(r.done, null); assert.deepEqual(E.pendingOf(ip, i), [a]);
+  r = E.togglePending(ip, i, a, 2);
+  assert.deepEqual(E.pendingOf(ip, i), [], '다시 누르면 취소');
+  const saved = JSON.parse(JSON.stringify(Object.assign({}, ip)));   // 새로고침 흉내: 저장 후 다시 읽기
+  E.togglePending(saved, i, b, 2);
+  const again = JSON.parse(JSON.stringify(saved));
+  assert.deepEqual(E.pendingOf(again, i), [b], '선택됨은 저장되어 새로고침 후에도 유지');
+  assert.equal(again.answers[i], null, '채점 전');
+  r = E.togglePending(again, i, a, 2);
+  assert.deepEqual(r.done, [a, b].sort((x, y) => x - y));
+  assert.equal(E.setAnswer(again, i, r.done, { lock: true }), true);
+  assert.equal(E.judge(again, bank, i).correct, true, '정답 2개 → 정답');
+  assert.equal(E.setAnswer(again, i, [a], { lock: true }), false, '고정');
+  assert.deepEqual(E.pendingOf(again, i), []);
+  // 정답 1개 + 오답 1개 → 오답
+  const j = ip.items.findIndex((it, k) => it.subject === 'ILLUST2' && k !== i);
+  const q2 = bank.byId[ip.items[j].qid];
+  const wrong = [1, 2, 3, 4, 5].find(n => E.answerSet(q2).indexOf(n) < 0);
+  E.setAnswer(ip, j, [E.answerSet(q2)[0], wrong].sort(), { lock: true });
+  assert.equal(E.judge(ip, bank, j).correct, false);
+  // 5지 범위: ILLUST2는 5번 허용, 4지 문항은 5번 거부
+  const k = ip.items.findIndex((it, x) => it.subject === 'ILLUST2' && x !== i && x !== j);
+  assert.equal(E.setAnswer(ip, k, [4, 5]), true);
+  assert.equal(E.setAnswer(ip, 0, 5), false, '4지 문항에 5번 없음');
+  assert.equal(E.setAnswer(ip, k, [1, 1]), false, '같은 번호 중복');
+});
+
+test('대형 채점: 28문항 70점 합격 / 27문항 67.5점 불합격, 유형별 정답 수 (TC-L06)', () => {
+  const E = require('../src/exam.js');
+  const bank = licenseBank();
+  const ip = E.buildExam(bank, {});
+  ip.items.forEach((it, i) => { if (i < 28) E.setAnswer(ip, i, bank.byId[it.qid].answer.length > 1 ? bank.byId[it.qid].answer : bank.byId[it.qid].answer[0]); });
+  let rec = E.score(ip, bank, {});
+  assert.equal(rec.correct, 28); assert.equal(rec.score, 70); assert.equal(rec.passed, true);
+  assert.equal(rec.bySubject.TEXT1.total, 17); assert.equal(rec.bySubject.TEXT1.correct, 17);
+  assert.equal(rec.bySubject.TEXT2.correct, 4); assert.equal(rec.bySubject.SIGN.correct, 5); assert.equal(rec.bySubject.ILLUST2.correct, 2);
+  const ip2 = E.buildExam(bank, {});
+  ip2.items.forEach((it, i) => { if (i < 27) E.setAnswer(ip2, i, bank.byId[it.qid].answer); });
+  rec = E.score(ip2, bank, {});
+  assert.equal(rec.correct, 27); assert.equal(rec.score, 67.5); assert.equal(rec.passed, false);
+  assert.ok(Array.isArray(rec.answers.find(a => a.qid.startsWith('DL') && bank.byId[a.qid].subject === 'TEXT2').choice), '2답 답안은 배열로 저장');
+});
+
+test('복습·학습 보기 섞기: 5지·2답, 원래 번호 배열로 채점, 일러스트는 순서 유지 (FR-L11, TC-L07)', () => {
+  const E = require('../src/exam.js');
+  const RV = require('../src/review.js');
+  const ST = require('../src/study.js');
+  const bank = licenseBank();
+  const ids = Object.keys(bank.byId);
+  const notes = {};
+  ids.forEach(id => { notes[id] = { subject: bank.byId[id].subject, state: 'active', wrong_count: 1, streak: 0, sample: false }; });
+  let seed = 7; const rng = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  const rv = RV.buildReview(notes, bank, { scope: 'all', count: 'all', rng });
+  rv.items.forEach(it => {
+    const q = bank.byId[it.qid];
+    assert.equal(it.perm.length, q.choices.length, '보기 수만큼');
+    assert.deepEqual(it.perm.slice().sort(), q.choices.map((_, k) => k + 1));
+    if (q.subject.startsWith('ILLUST')) assert.deepEqual(it.perm, q.choices.map((_, k) => k + 1), '일러스트는 섞지 않음');
+  });
+  assert.ok(rv.items.some(it => it.subject === 'TEXT2' && it.perm.join() !== '1,2,3,4'), '문장형 2답은 섞임');
+  // 2답 복습 채점: 화면 위치 → 원래 번호 배열
+  const i = rv.items.findIndex(it => it.subject === 'TEXT2');
+  const it = rv.items[i], q = bank.byId[it.qid];
+  const pos = E.answerSet(q).map(o => RV.displayIndexOf(it, o));
+  const orig = pos.map(p => RV.originalChoice(it, p)).sort();
+  let res = RV.answer(rv, notes, bank, i, orig);
+  assert.equal(res.correct, true); assert.equal(notes[it.qid].streak, 1);
+  const i2 = rv.items.findIndex((x, k) => x.subject === 'TEXT2' && k !== i);
+  const q2 = bank.byId[rv.items[i2].qid];
+  const bad = [E.answerSet(q2)[0], [1, 2, 3, 4].find(n => E.answerSet(q2).indexOf(n) < 0)].sort();
+  res = RV.answer(rv, notes, bank, i2, bad);
+  assert.equal(res.correct, false); assert.deepEqual(notes[rv.items[i2].qid].last_choice, bad, '최근 내 답도 배열');
+  // 집중 학습: 보기 섞기 켜도 일러스트는 그대로, 끄면 모두 그대로
+  const st = ST.buildStudy(bank, { filter: {}, count: 'all', shuffleChoices: true, rng });
+  st.items.forEach(x => { if (x.subject.startsWith('ILLUST')) assert.deepEqual(x.perm, bank.byId[x.qid].choices.map((_, k) => k + 1)); });
+  const st2 = ST.buildStudy(bank, { filter: {}, count: 'all', shuffleChoices: false, rng });
+  st2.items.forEach(x => assert.deepEqual(x.perm, bank.byId[x.qid].choices.map((_, k) => k + 1)));
+  const k = st.items.findIndex(x => x.subject === 'ILLUST2');
+  assert.equal(ST.answer(st, {}, bank, k, bank.byId[st.items[k].qid].answer).correct, true);
+  // shuffle 지정 우선
+  assert.equal(E.canShuffle({ subject: 'ILLUST2', shuffle: true }), true);
+  assert.equal(E.canShuffle({ subject: 'TEXT1', shuffle: false }), false);
+});
+
+test('힌트: 5지 2답은 정답 아닌 보기 1개만 지움, 선택됨 보기는 지우지 않고 지운 보기는 고정 (FR-L12, TC-L08)', () => {
+  const E = require('../src/exam.js');
+  const bank = licenseBank();
+  const qs = Object.values(bank.byId).filter(q => q.subject === 'ILLUST2' && !q.hint);
+  assert.ok(qs.length > 3);
+  qs.forEach(q => {
+    const h = E.hintFor(q);
+    assert.equal(h.type, 'elim');
+    assert.ok(h.remove >= 1 && h.remove <= 5 && E.answerSet(q).indexOf(h.remove) < 0, '정답이 아닌 보기');
+    const h2 = E.hintFor(q, [h.remove]);
+    assert.notEqual(h2.remove, h.remove, '선택됨 보기는 피함');
+    assert.ok(E.answerSet(q).indexOf(h2.remove) < 0);
+  });
+  // 진행 상태에 기록: 선택을 바꿔도 지운 보기는 그대로
+  const q = qs[0];
+  const st = { items: [{ qid: q.id }], answers: [null], hints: [false] };
+  E.togglePending(st, 0, E.hintFor(q).remove, 2);   // 원래 지워질 보기를 먼저 선택
+  E.useHint(st, 0, q);
+  const el = E.elimOf(st, 0, q);
+  assert.notEqual(el, E.hintFor(q).remove);
+  E.togglePending(st, 0, E.hintFor(q).remove, 2);   // 선택 취소
+  assert.equal(E.elimOf(st, 0, q), el, '지운 보기 고정');
+  const t = Object.values(bank.byId).find(x => x.hint);
+  assert.equal(E.hintFor(t).type, 'text');
+});
+
+test('오답노트: 2답 오답은 최근 내 답을 배열로 저장', () => {
+  const N = require('../src/notes.js');
+  const bank = licenseBank();
+  const q = Object.values(bank.byId).find(x => x.subject === 'TEXT2');
+  const notes = {};
+  N.registerWrong(notes, { answers: [{ qid: q.id, qver: 1, choice: [1, 2], correct: false }] }, bank, 'NOW');
+  assert.deepEqual(notes[q.id].last_choice, [1, 2]);
+  assert.equal(notes[q.id].subject, 'TEXT2');
 });

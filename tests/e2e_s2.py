@@ -5,6 +5,7 @@ import os
 import re
 import sys
 from playwright.sync_api import sync_playwright
+from draft_data import as_drafts  # 검수 진행과 관계없이 초안 상태로 확인
 
 BASE = os.environ.get("BASE", "http://localhost:8000/")
 SHOT = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -42,7 +43,8 @@ def tally(page):
 with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium" if os.path.exists("/opt/pw-browsers/chromium") else None
     browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
-    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR")
+    ctx = browser.new_context(viewport={"width": 360, "height": 740}, locale="ko-KR", service_workers="block")
+    as_drafts(ctx)
     page = ctx.new_page()
     js_errors = []
     page.on("pageerror", lambda e: js_errors.append(str(e)))
@@ -183,7 +185,8 @@ with sync_playwright() as p:
     check(not js_errors, "자바스크립트 오류 없음 " + "; ".join(js_errors))
 
     print("[12] PC 다크 모드 스크린샷")
-    ctx3 = browser.new_context(viewport={"width": 1280, "height": 900}, color_scheme="dark")
+    ctx3 = browser.new_context(viewport={"width": 1280, "height": 900}, color_scheme="dark", service_workers="block")
+    as_drafts(ctx3)
     pg = ctx3.new_page()
     pg.goto(BASE)
     pg.evaluate("localStorage.setItem('cdme_sample','1')")

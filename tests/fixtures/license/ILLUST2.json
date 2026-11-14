@@ -1,0 +1,439 @@
+{
+ "subject": "ILLUST2",
+ "exam": "license",
+ "updated_at": "2026-11-14",
+ "questions": [
+  {
+   "id": "DL-9033",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 1] 정답은 ①, ③입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 1)",
+    "보기 2 (ILLUST2 1)",
+    "보기 3 (ILLUST2 1)",
+    "보기 4 (ILLUST2 1)",
+    "보기 5 (ILLUST2 1)"
+   ],
+   "answer": [
+    1,
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ③번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9033.svg",
+   "image_alt": "확인용 교차로 1 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9034",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 2] 정답은 ②, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 2)",
+    "보기 2 (ILLUST2 2)",
+    "보기 3 (ILLUST2 2)",
+    "보기 4 (ILLUST2 2)",
+    "보기 5 (ILLUST2 2)"
+   ],
+   "answer": [
+    2,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "image": "license/images/DL-9034.svg",
+   "image_alt": "확인용 교차로 2 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9035",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 3] 정답은 ③, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 3)",
+    "보기 2 (ILLUST2 3)",
+    "보기 3 (ILLUST2 3)",
+    "보기 4 (ILLUST2 3)",
+    "보기 5 (ILLUST2 3)"
+   ],
+   "answer": [
+    3,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ③, ⑤번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "image": "license/images/DL-9035.svg",
+   "image_alt": "확인용 교차로 3 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9036",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 4] 정답은 ①, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 4)",
+    "보기 2 (ILLUST2 4)",
+    "보기 3 (ILLUST2 4)",
+    "보기 4 (ILLUST2 4)",
+    "보기 5 (ILLUST2 4)"
+   ],
+   "answer": [
+    1,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ④번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9036.svg",
+   "image_alt": "확인용 교차로 4 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9037",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 5] 정답은 ②, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 5)",
+    "보기 2 (ILLUST2 5)",
+    "보기 3 (ILLUST2 5)",
+    "보기 4 (ILLUST2 5)",
+    "보기 5 (ILLUST2 5)"
+   ],
+   "answer": [
+    2,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ⑤번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "image": "license/images/DL-9037.svg",
+   "image_alt": "확인용 교차로 5 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9038",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 6] 정답은 ①, ③입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 6)",
+    "보기 2 (ILLUST2 6)",
+    "보기 3 (ILLUST2 6)",
+    "보기 4 (ILLUST2 6)",
+    "보기 5 (ILLUST2 6)"
+   ],
+   "answer": [
+    1,
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ③번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "image": "license/images/DL-9038.svg",
+   "image_alt": "확인용 교차로 6 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9039",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 7] 정답은 ②, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 7)",
+    "보기 2 (ILLUST2 7)",
+    "보기 3 (ILLUST2 7)",
+    "보기 4 (ILLUST2 7)",
+    "보기 5 (ILLUST2 7)"
+   ],
+   "answer": [
+    2,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ④번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9039.svg",
+   "image_alt": "확인용 교차로 7 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9040",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 8] 정답은 ③, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 8)",
+    "보기 2 (ILLUST2 8)",
+    "보기 3 (ILLUST2 8)",
+    "보기 4 (ILLUST2 8)",
+    "보기 5 (ILLUST2 8)"
+   ],
+   "answer": [
+    3,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ③, ⑤번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "image": "license/images/DL-9040.svg",
+   "image_alt": "확인용 교차로 8 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9041",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 9] 정답은 ①, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 9)",
+    "보기 2 (ILLUST2 9)",
+    "보기 3 (ILLUST2 9)",
+    "보기 4 (ILLUST2 9)",
+    "보기 5 (ILLUST2 9)"
+   ],
+   "answer": [
+    1,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "image": "license/images/DL-9041.svg",
+   "image_alt": "확인용 교차로 9 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9042",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 10] 정답은 ②, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 10)",
+    "보기 2 (ILLUST2 10)",
+    "보기 3 (ILLUST2 10)",
+    "보기 4 (ILLUST2 10)",
+    "보기 5 (ILLUST2 10)"
+   ],
+   "answer": [
+    2,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ⑤번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9042.svg",
+   "image_alt": "확인용 교차로 10 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9043",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 11] 정답은 ①, ③입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 11)",
+    "보기 2 (ILLUST2 11)",
+    "보기 3 (ILLUST2 11)",
+    "보기 4 (ILLUST2 11)",
+    "보기 5 (ILLUST2 11)"
+   ],
+   "answer": [
+    1,
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ③번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "image": "license/images/DL-9043.svg",
+   "image_alt": "확인용 교차로 11 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9044",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 12] 정답은 ②, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 12)",
+    "보기 2 (ILLUST2 12)",
+    "보기 3 (ILLUST2 12)",
+    "보기 4 (ILLUST2 12)",
+    "보기 5 (ILLUST2 12)"
+   ],
+   "answer": [
+    2,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "image": "license/images/DL-9044.svg",
+   "image_alt": "확인용 교차로 12 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9045",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 13] 정답은 ③, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 13)",
+    "보기 2 (ILLUST2 13)",
+    "보기 3 (ILLUST2 13)",
+    "보기 4 (ILLUST2 13)",
+    "보기 5 (ILLUST2 13)"
+   ],
+   "answer": [
+    3,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ③, ⑤번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9045.svg",
+   "image_alt": "확인용 교차로 13 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9046",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 14] 정답은 ①, ④입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 14)",
+    "보기 2 (ILLUST2 14)",
+    "보기 3 (ILLUST2 14)",
+    "보기 4 (ILLUST2 14)",
+    "보기 5 (ILLUST2 14)"
+   ],
+   "answer": [
+    1,
+    4
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ④번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 2,
+   "image": "license/images/DL-9046.svg",
+   "image_alt": "확인용 교차로 14 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9047",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 15] 정답은 ②, ⑤입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 15)",
+    "보기 2 (ILLUST2 15)",
+    "보기 3 (ILLUST2 15)",
+    "보기 4 (ILLUST2 15)",
+    "보기 5 (ILLUST2 15)"
+   ],
+   "answer": [
+    2,
+    5
+   ],
+   "explanation": "확인용 해설 – 정답은 ②, ⑤번입니다.",
+   "hint": "",
+   "source": "자체 작성",
+   "difficulty": 3,
+   "image": "license/images/DL-9047.svg",
+   "image_alt": "확인용 교차로 15 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  },
+  {
+   "id": "DL-9048",
+   "exam": "license",
+   "subject": "ILLUST2",
+   "category": "SAFE",
+   "question": "[확인용 ILLUST2 16] 정답은 ①, ③입니다. 2개를 고르세요.",
+   "choices": [
+    "보기 1 (ILLUST2 16)",
+    "보기 2 (ILLUST2 16)",
+    "보기 3 (ILLUST2 16)",
+    "보기 4 (ILLUST2 16)",
+    "보기 5 (ILLUST2 16)"
+   ],
+   "answer": [
+    1,
+    3
+   ],
+   "explanation": "확인용 해설 – 정답은 ①, ③번입니다.",
+   "hint": "확인용 힌트 글입니다.",
+   "source": "자체 작성",
+   "difficulty": 1,
+   "image": "license/images/DL-9048.svg",
+   "image_alt": "확인용 교차로 16 – 내 차 A가 교차로 앞, 왼쪽에서 차 B가 다가옴",
+   "status": "verified",
+   "version": 1,
+   "updated_at": "2026-11-14"
+  }
+ ]
+}
