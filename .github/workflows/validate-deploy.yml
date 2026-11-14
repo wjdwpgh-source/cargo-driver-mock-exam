@@ -1,4 +1,4 @@
-# 문제 데이터 검사 → 단위 테스트 → GitHub Pages 배포 (PRD 11.2)
+# 문제 데이터 검사 → 단위 테스트 → GitHub Pages 배포 (PRD 11.2, v2.0: 대형면허 data/license 포함 – PRD 13.11)
 # main 브랜치에 파일을 올릴 때마다 자동 실행. 검사가 실패하면 배포하지 않는다.
 name: 검사 후 배포
 
@@ -45,6 +45,9 @@ jobs:
           mkdir -p _site/data
           cp -r index.html manifest.webmanifest sw.js src images _site/
           cp -r data/config.json data/questions data/samples _site/data/
+          # v2.0: 대형운전면허 문제·그림 (엑셀 원본 raw/·장면 정의 scenes/는 제외)
+          mkdir -p _site/data/license
+          cp -r data/license/questions data/license/images _site/data/license/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
